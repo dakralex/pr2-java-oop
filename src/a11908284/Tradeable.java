@@ -1,87 +1,101 @@
 package a11908284;
 
 /**
- * Tradeable objects can be traded and stored in inventories
+ * The interface that adds the ability to trade an item.
  */
 public interface Tradeable {
     /**
-     * Returns price of the object
+     * Return the price of the object.
      *
      * @return price of the object
      */
     int getPrice();
 
     /**
-     * Returns weight of the object
+     * Returns the weight of the object.
      *
      * @return weight of the object
      */
     int getWeight();
 
     /**
-     * Caution: this method transfers the item from from's inventory to to's inventory
-     * without any checks. It has to be ensured that all necessary conditions for the
-     * transfer are met before calling this function-
-     * The default implementation calls removeFromInventory on from and addToInventory
-     * on to and returns true if both calls succeeded (returned true)
+     * Transfer the item from the specified trader's inventory to the other's
+     * inventory. This method does not check if the first has the item and the
+     * latter can carry the item.
      *
-     * @param from object is taken from from's inventory
-     * @param to   object is transferre to to's inventory
-     * @return true, if transfer succeeds, false otherwise
+     * @param src  the inventory the item will be taken from
+     * @param dest the inventory the item will be transferred to
+     * @return whether the transfer succeeded
      */
-    private boolean transfer(Trader from, Trader to) {
-        // TODO Unimplemented
-        return false;
+    private boolean transfer(Trader src, Trader dest) {
+        // By default, remove the item from the source and add it to the destination
+        return src.removeFromInventory(this) && dest.addToInventory(this);
     }
 
     /**
-     * If giver or taker is null or they are the same object,
-     * an IllegalArgumentException must be thrown;
-     * <p>
-     * giver gives the object away for free. Default implementation checks if the giver
-     * has the object (possesses method) and the taker has enough capacity in the
-     * inventory (hasCapacity). If any of these checks fail, the method returns false.
-     * <p>
-     * Otherwise the item is transferred from the giver's inventory to the taker's
-     * inventory (transfer method) and the return value of the transfer call is returned
+     * Gives the item from the specified giver to the specified taker for free.
+     * This method will check whether the giver has the item and the taker can
+     * carry the item.
      *
      * @param giver the one who gives the object away
      * @param taker the one who receives the object
-     * @return true, if transfer was successful, false otherwise
+     * @return whether the giver had the item, the taker has the capacity and
+     *         the transfer was successful
+     * @throws IllegalArgumentException if the giver and/or taker is/are null or
+     *                                  are the same object
      */
     default boolean give(Trader giver, Trader taker) {
-        // TODO Unimplemented
+        if (giver == null || taker == null) {
+            throw new IllegalArgumentException("Giver and taker must not be null.");
+        }
+
+        if (giver == taker) {
+            throw new IllegalArgumentException("Giver and taker must not be the same object.");
+        }
+
+        int itemWeight = getWeight();
+        if (giver.possesses(this) && taker.hasCapacity(itemWeight)) {
+            return transfer(giver, taker);
+        }
+
         return false;
     }
 
     /**
-     * If seller or buyer is null or they are the same object, an IllegalArgumentException
-     * must be thrown;
-     * <p>
-     * default implementation checks if the seller has the object (possesses method), the
-     * buyer can afford the object (canAfford method) and the buyer has enough capacity
-     * in the inventory (hasCapacity). If any of these checks fail, the method returns
-     * false.
-     * <p>
-     * Otherwise the buyer pays the price (pay method), the seller receives the price paid
-     * (earn method), The item is transferred from the seller's inventory to the buyer's
-     * inventory (transfer method) and the return value of the transfer call is returned
+     * Purchase the item from the specified seller to the specified buyer. This
+     * method will check whether the seller has the item, the taker can afford
+     * and carry the item and then does the transfer.
      *
-     * @param seller the one who sells the object
-     * @param buyer  the one who buys the object
-     * @return true, if the purchase is successful, false otherwise
+     * @param seller the one who sells the item
+     * @param buyer  the one who buys the item
+     * @return whether the seller had the item, the buyer has the money and
+     *         capacity and the transfer was successful
+     * @throws IllegalArgumentException if the seller and/or buyer is/are null
+     *                                  or are the same object
      */
     default boolean purchase(Trader seller, Trader buyer) {
-        // TODO Unimplemented
+        if (seller == null || buyer == null) {
+            throw new IllegalArgumentException("Seller and buyer must not be null.");
+        }
+
+        if (seller == buyer) {
+            throw new IllegalArgumentException("Seller and buyer must not be the same object.");
+        }
+
+        int itemPrice = getPrice();
+        int itemWeight = getWeight();
+        if (seller.possesses(this) && buyer.canAfford(itemPrice) && buyer.hasCapacity(itemWeight)) {
+            return buyer.pay(itemPrice) && seller.earn(itemPrice) && transfer(seller, buyer);
+        }
+
         return false;
     }
 
     /**
-     * If target is null, an IllegalArgumentException must be thrown;
-     * use the object on the target
+     * Use item on the specified target.
      *
-     * @param target target of the object's usage (which will typically inflicted by the magic
-     *               effects)
+     * @param target target of the item's usage
+     * @throws IllegalArgumentException if the target is null
      */
     void useOn(MagicEffectRealization target);
 }

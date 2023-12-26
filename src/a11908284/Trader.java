@@ -1,139 +1,123 @@
 package a11908284;
 
 /**
- * Trader objects have an inventory in which they can store magic items.
- * They can trade and use these objects. Additionally they are able to
- * steal and loot objects from other traders.
+ * The interface that adds the abilities to interact with the inventory, the
+ * wallet, trade items, use items, and steal and loot from other traders.
  */
 public interface Trader {
     /**
-     * If item is null an IllegalArgumentException must be thrown;
-     * returns true if this object possesses the item, false otherwise.
+     * Checks whether the specified item is possessed by the object.
      *
-     * @param item test if this object possesses this item
-     * @return true if the item is in the object's possession, false otherwise
+     * @param item item to test for
+     * @return whether the item is possessed
+     * @throws IllegalArgumentException if item is null
      */
     boolean possesses(Tradeable item);
 
     /**
-     * If amount is negative, an IllegalArgumentException must be thrown;
-     * returns true if the object has enough money, false otherwise
+     * Checks whether the specified amount can be afforded by the object.
      *
-     * @param amount amount to be tested for
-     * @return true if the object has enough money, false otherwise
+     * @param amount amount to test for
+     * @return whether the amount can be afforded
+     * @throws IllegalArgumentException if amount is negative
      */
     boolean canAfford(int amount);
 
     /**
-     * If weight is negative, an IllegalArgumentException must be thrown;
-     * returns true if the weight can be added to the object's inventory without exceeding
-     * the maximum weight capacity.
+     * Checks whether the specified weight can be additionally carried by the
+     * object.
      *
      * @param weight weight to test for
-     * @return true, if carrying capacity is sufficient, false otherwise
+     * @return whether the weight can be additionally carried
+     * @throws IllegalArgumentException if weight is negative
      */
     boolean hasCapacity(int weight);
 
     /**
-     * If amount is negative, an IllegalArgumentException must be thrown;
-     * if this owns enough money, deduct amount from money and return true, return false
-     * otherwise.
+     * Pay the specified amount.
      *
-     * @param amount amount to be payed
-     * @return true if payment succeeded, false otherwise
+     * @param amount amount to pay
+     * @return whether the payment succeeded
+     * @throws IllegalArgumentException if the amount is negative
      */
     boolean pay(int amount);
 
     /**
-     * If amount is negative, an IllegalArgumentException must be thrown;
-     * add amount to this object's money and return true.
+     * Earn the specified amount.
      *
-     * @param amount amount earned
-     * @return true (always)
+     * @param amount amount to earn
+     * @return always true (why?)
+     * @throws IllegalArgumentException if the amount is negative
      */
     boolean earn(int amount);
 
     /**
-     * If item is null, an IllegalArgumentException must be thrown;
-     * if inventory capacity would be exceeded, return false.
-     * adds item to the inventory and returns true on success, false if adding the item
-     * failed
+     * Add the specified item to the inventory.
      *
-     * @param item item to be stored in inventory
-     * @return true if storage was successful, false otherwise
+     * @param item item to add to the inventory
+     * @return whether the item could be additionally carried
+     * @throws IllegalArgumentException if the item is null
      */
     boolean addToInventory(Tradeable item);
 
     /**
-     * If item is null, an IllegalArgumentException must be thrown;
-     * removes item from the inventory and returns true on success, false if removing
-     * the item failed.
+     * Remove the specified item from the inventory.
      *
-     * @param item to remove from inventory
-     * @return true, if removal was successful, false otherwise
+     * @param item item to remove from the inventory
+     * @return whether the item could be removed (e.g. was not in there before)
+     * @throws IllegalArgumentException if the item is null
      */
     boolean removeFromInventory(Tradeable item);
 
     /**
-     * Returns true if the object is capable to steal;
-     * default implementation always returns false
-     * this will be overridden for the class Wizard, so that only living Wizards can steal.
+     * Checks whether the object can be stolen.
      *
-     * @return true, if object is able to steal, false otherwise
+     * @return whether the object could be stolen
      */
     default boolean canSteal() {
-        // TODO Unimplemented
+        // By default, do nothing as we don't know yet
         return false;
     }
 
     /**
-     * If thief is null, an IllegalArgumentException must be thrown;
-     * if thief cannot steal (canSteal returns false) no action can be taken and false
-     * is returned.
-     * returns false if the object's inventory is empty
-     * otherwise transfers a random item from the this object's inventory into the thief's
-     * inventory; if the thief's inventory has not enough capacity, the object just vanishes
-     * and false is returned. returns true if theft was successful
+     * Steals a random item by moving it from this object's inventory to the
+     * specified thief's inventory. If the item could not be stolen because of
+     * the thief doesn't have enough capacity, the item vanishes nevertheless.
      *
-     * @param thief the one who steals the object
-     * @return true, if theft was successful, false otherwise
+     * @param thief the thief that steals from this object
+     * @return whether the thief can steal, this object's inventory is empty or
+     *         the thief doesn't have enough capacity for the stolen item
+     * @throws IllegalArgumentException if the thief is null
      */
     boolean steal(Trader thief);
 
     /**
-     * Returns true if the object can be looted;
-     * default implementation always returns false.
-     * This will be overridden for the class Wizard, so that dead Wizards may be looted
+     * Checks whether the object can be looted.
      *
-     * @return true if the object can be looted, false otherwise
+     * @return whether the object can be looted
      */
     default boolean isLootable() {
-        // TODO Unimplemented
+        // By default, the object cannot be looted
         return false;
     }
 
     /**
-     * Returns true if the object is capable to loot;
-     * default implementation always returns false.
-     * This will be overridden for the class Wizard, so that only living Wizards can loot
+     * Checks whether the object can loot other objects.
      *
-     * @return true if the object can loot another object, false otherwise
+     * @return whether the object can loot other objects
      */
     default boolean canLoot() {
-        // TODO Unimplemented
+        // By default, the object cannot loot other objects
         return false;
     }
 
     /**
-     * If looter is null, an IllegalArgumentException must be thrown;
-     * if looter cannot loot (canLoot returns false) no action can be taken and false
-     * is returned. If the object can be looted (isLootable), transfer all the items in
-     * the object's inventory into the looter's inventory; items that don't fit in the
-     * looter's inventory because of the weight limitation just vanish
-     * returns true if at least one item was successfully transferred, false otherwise}
+     * Loots all the items by moving them from the object's inventory to the
+     * specified looter's inventory. All of the objects that don't fit in the
+     * looter's inventory will vanish nevertheless.
      *
-     * @param looter the one who loots the object
-     * @return true, if at least one item could be successfully looted, false otherwise
+     * @param looter the looter that loots from the object
+     * @return whether the looter can loot and at least one item was looted
      */
     boolean loot(Trader looter);
 }

@@ -1,21 +1,19 @@
 package a11908284;
 
 /**
- * A MagicSource object can provide mana necesary to cause a magic effect
+ * The interface that adds the ability to provide mana points.
  */
+@FunctionalInterface
 public interface MagicSource {
     /**
-     * levelNeeded==null or negative manaAmount must throw IllegalArgumentException;
-     * returns true if the object has at least the required level and can provide enough
-     * mana, false otherwise.
-     * A typical implementation will check if the objects level is high enough,
-     * returning false if not. Otherwise it reduces the object's MP by manaAmount.
-     * There may be exceptions though, like objects with infinite mana or supporting
-     * all levels  for example
+     * Checks whether the mana points can be provided to the object with their
+     * specific set of properties.
      *
-     * @param levelNeeded mana can only be provided if the object at least has magic level levelNeeded
-     * @param manaAmount  amount of mana to provide
-     * @return true, if mana could be successfully provided, false otherwise
+     * @param levelNeeded magic level minimum to provide the mana points
+     * @param manaAmount  amount of mana points that will be provided
+     * @return whether mana points can be provided
+     * @throws IllegalArgumentException when the needed magic level is null
+     *                                  and/or the mana amount is negative
      */
     boolean provideMana(MagicLevel levelNeeded, int manaAmount);
 }

@@ -3,140 +3,135 @@ package a11908284;
 import java.util.Set;
 
 /**
- * This interface contains all the methods to realize various magic effects on an object.
- * Most methods default to doing nothing and should be overriden for classes that can be
- * influenced by magic. The overrides define what exactly will happen given a specific
- * magic effect on the specific object.
+ * The interface that adds the ability to have various magic effects.
  */
 public interface MagicEffectRealization {
     /**
-     * Negative amount must throw IllegalArgumentException;
-     * a typical implementation will reduce the object's HP by amount ensuring however
-     * that HP does not become negative.
+     * Reduces the health points by the specified, absolute amount of damage.
+     * This method ensures that the health points will never drop below zero.
      *
-     * @param amount amount of damage done
+     * @param amount absolute amount of damage
+     * @throws IllegalArgumentException if specified damage amount is negative
      */
     default void takeDamage(int amount) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any health points
     }
 
     /**
-     * Percentage must be between 0 and 100 (inclusive) otherwise an IllegalArgumentException
-     * must be thrown;
-     * a typical implementation will reduce the object's HP by the percentage given of the
-     * object's basic HP value ensuring however, that HP does not become negative.
-     * calculations must be done in double data type converting back to int only in the
-     * last step
+     * Reduces the health points by the specified, relative amount of damage as
+     * a percentage of the health points of the object. The calculation are done
+     * with the double precision type. This method ensures that the health
+     * points will never drop below zero.
      *
-     * @param percentage percentage of damage relative to object's basic HP value
+     * @param percentage relative amount of damage (value between [0;100])
+     * @throws IllegalArgumentException if the specified percentage does not lie
+     *                                  somewhere between 0 and 100 (inclusive)
      */
     default void takeDamagePercent(int percentage) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any health points
     }
 
     /**
-     * Negative amount must throw IllegalArgumentException;
-     * a typical implementation will reduce the object's MP by amount ensuring however
-     * that MP does not become negative.
+     * Reduces the mana points by the specified, absolute amount of damage. This
+     * method ensures that the mana points will never drop below zero.
      *
-     * @param amount amount of damage done
+     * @param amount absolute amount of damage
+     * @throws IllegalArgumentException if specified damage amount is negative
      */
     default void weakenMagic(int amount) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any mana points
     }
 
     /**
-     * Percentage must be between 0 and 100 (inclusive) otherwise an IllegalArgumentException
-     * must be thrown;
-     * a typical implementation will reduce the object's MP by the percentage given of the
-     * object's basic MP value value ensuring however, that MP does not become negative..
-     * calculations must be done in double data type converting back to int only in the last step
+     * Reduces the mana points by the specified, relative amount of damage as a
+     * percentage of the mana points of the object. The calculation are done
+     * with the double precision type. This method ensures that the mana points
+     * will never drop below zero.
      *
-     * @param percentage percentage of damage relative to object's basic MP value
+     * @param percentage relative amount of damage (value between [0;100])
+     * @throws IllegalArgumentException if the specified percentage does not lie
+     *                                  somewhere between 0 and 100 (inclusive)
      */
     default void weakenMagicPercent(int percentage) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any mana points
     }
 
     /**
-     * Negative amount must throw IllegalArgumentException;
-     * a typical implementation will increase the object's HP by the amount given.
+     * Increases the health points by the specified, absolute amount of
+     * healing.
      *
-     * @param amount amount of healing done
+     * @param amount absolute amount of healing
+     * @throws IllegalArgumentException if specified healing amount is negative
      */
     default void heal(int amount) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any health points
     }
 
     /**
-     * Percentage must be between 0 and 100 (inclusive) otherwise an IllegalArgumentException
-     * must be thrown;
-     * a typical implementation will increase the object's HP by the percentage given of the
-     * object's basic HP value.
-     * calculations must be done in double data type converting back to int only in the last step
+     * Increases the health points by the specified, relative amount of healing
+     * as a percentage of the health points of the object. The calculation are
+     * done with the double precision type.
      *
-     * @param percentage percentage of healing relative to object's basic MP value
+     * @param percentage relative amount of healing (value between [0;100])
+     * @throws IllegalArgumentException if the specified percentage does not lie
+     *                                  somewhere between 0 and 100 (inclusive)
      */
     default void healPercent(int percentage) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any health points
     }
 
     /**
-     * Negative amount must throw IllegalArgumentException;
-     * a typical implementation will increase the object's MP by the amount given.
+     * Increases the mana points by the specified, absolute amount of healing.
      *
-     * @param amount amount to increase mana
+     * @param amount absolute amount of healing
+     * @throws IllegalArgumentException if specified healing amount is negative
      */
     default void enforceMagic(int amount) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any mana points
     }
 
     /**
-     * Percentage must be between 0 and 100 (inclusive) otherwise an IllegalArgumentException
-     * must be thrown;
-     * a typical implementation will increase the object's MP by the percentage given of the
-     * object's basic MP value
-     * calculations must be done in double data type converting back to int only in the last
-     * step
+     * Increases the mana points by the specified, relative amount of healing as
+     * a percentage of the mana points of the object. The calculation are done
+     * with the double precision type.
      *
-     * @param percentage percentage of mana increase relative to object's basic MP value
+     * @param percentage relative amount of healing (value between [0;100])
+     * @throws IllegalArgumentException if the specified percentage does not lie
+     *                                  somewhere between 0 and 100 (inclusive)
      */
     default void enforceMagicPercent(int percentage) {
-        // TODO Unimplemented
+        // Do nothing, we don't have any mana points
     }
 
     /**
-     * If spell is null, an IllegalArgumentException must be thrown;
-     * an implementation returns true if the object is protected against the spell spell, false
-     * otherwise.
+     * Checks whether the object is protected against the specified spell.
      *
-     * @param spell spell to test for
-     * @return true if object is protected against spell spell
+     * @param spell specific spell to check for
+     * @return whether the object is protected against the specified spell
+     * @throws IllegalArgumentException if the specified spell is null
      */
     default boolean isProtected(Spell spell) {
-        // TODO Unimplemented
+        // By default, object isn't protected against any spell
         return false;
     }
 
     /**
-     * If attacks is null an IllegalArgumentException must be thrown;
-     * a typical implementation will register the object as protected against all the spells
-     * in attacks
+     * Registers the specified spells that the object gains protection from.
      *
-     * @param attacks list of attacking spells that the object gets protected against
+     * @param attacks list of spells the object gains protection from
+     * @throws IllegalArgumentException if the specified list is null
      */
     default void setProtection(Set<AttackingSpell> attacks) {
-        // TODO Unimplemented
+        // Do nothing, we don't have a set of protections
     }
 
     /**
-     * If attacks is null an IllegalArgumentException must be thrown;
-     * a typical implementation will register the object as not protected against all the spells
-     * in attacks
+     * Removes the specified spells that the object loses protection for.
      *
-     * @param attacks list of attacking spells that the object loses protection against
+     * @param attacks list of spells the object loses protection for
+     * @throws IllegalArgumentException if the specified list is null
      */
     default void removeProtection(Set<AttackingSpell> attacks) {
-        // TODO Unimplemented
+        // Do nothing, we don't have a set of protections
     }
 }

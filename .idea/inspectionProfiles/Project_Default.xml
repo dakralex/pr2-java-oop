@@ -105,12 +105,6 @@
     <inspection_tool class="BigDecimalEquals" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BlockMarkerComments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BlockStatementJS" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="BooleanMethodNameMustStartWithQuestion" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoreBooleanMethods" value="false" />
-      <option name="ignoreInAnnotationInterface" value="true" />
-      <option name="onlyWarnOnBaseMethods" value="true" />
-      <option name="questionString" value="are,can,check,contains,could,endsWith,equals,has,is,matches,must,shall,should,startsWith,was,were,will,would" />
-    </inspection_tool>
     <inspection_tool class="BooleanParameter" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BooleanVariableAlwaysNegated" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BoundedWildcard" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -221,7 +215,9 @@
     <inspection_tool class="ConstantAssertCondition" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ConstantMathCall" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ConstantOnLHSOfComparisonJS" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="ConstantOnWrongSideOfComparison" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="ConstantOnWrongSideOfComparison" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myConstantShouldGoLeft" value="false" />
+    </inspection_tool>
     <inspection_tool class="ConstantValueVariableUse" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ConstructorCount" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreDeprecatedConstructors" value="false" />
@@ -500,7 +496,6 @@
     <inspection_tool class="MisorderedAssertEqualsArguments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MissingDeprecatedAnnotation" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MissingJavadoc" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="MissingPackageInfo" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MisspelledEquals" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MisspelledMethodName" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ModuleWithTooFewClasses" enabled="true" level="WARNING" enabled_by_default="true">
@@ -510,11 +505,6 @@
       <option name="limit" value="100" />
     </inspection_tool>
     <inspection_tool class="MultipleExceptionsDeclaredOnTestMethod" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="MultipleReturnPointsPerMethod" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoreGuardClauses" value="false" />
-      <option name="ignoreEqualsMethod" value="false" />
-      <option name="m_limit" value="1" />
-    </inspection_tool>
     <inspection_tool class="MultipleTopLevelClassesInFile" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NakedNotify" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NativeMethods" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -629,11 +619,6 @@
     <inspection_tool class="OverriddenMethodCallDuringObjectConstruction" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PackageDotHtmlMayBePackageInfo" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PackageInMultipleModules" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="PackageNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="m_regex" value="[a-z]*" />
-      <option name="m_minLength" value="3" />
-      <option name="m_maxLength" value="16" />
-    </inspection_tool>
     <inspection_tool class="PackageVisibleField" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PackageVisibleInnerClass" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreEnums" value="false" />
