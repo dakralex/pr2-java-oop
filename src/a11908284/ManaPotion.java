@@ -1,46 +1,59 @@
 package a11908284;
 
 /**
- * A ManaPotion provides mana to its consumer
+ * The class that represents a mana potion which increases the mana points of
+ * its consumer.
  */
 public class ManaPotion extends Potion {
-    /**
-     * Must not be negative
-     */
-    private int mana;
 
     /**
-     * @param name   name
-     * @param usages number of usages still left
-     * @param price  price
-     * @param weight weight
-     * @param mana   amount of mana provided to the consumer
+     * The mana points the potion will bring. This field must not be negative.
+     */
+    private final int mana;
+
+    /**
+     * Creates an ManaPotion instance.
+     *
+     * @param name   name of the mana potion
+     * @param usages number of usages that are remaining
+     * @param price  price of the mana potion
+     * @param weight weight of the mana potion
+     * @param mana   mana the potion will bring
      */
     public ManaPotion(String name, int usages, int price, int weight, int mana) {
         super(name, usages, price, weight);
-        // TODO Unimplemented
+
+        if (mana < 0) {
+            throw new IllegalArgumentException("The mana of the mana potion must not be negative.");
+        }
+
+        this.mana = mana;
     }
 
     /**
-     * Returns "; +'mana' MP".
-     * E.g. (total result of toString) "[Mana Potion; 1 g; 2 Knuts; 1 gulp; +20 MP]"
+     * Uses the potion on the specified target.
      *
-     * @return "; +'mana' MP"
-     */
-    @Override
-    public String additionalOutputString() {
-        // TODO Unimplemented
-        return "";
-    }
-
-    /**
-     * If usages greater than 0 reduce usages by 1 (tryUsage method) and
-     * increase MP of target by mana (call method enforceMagic(mana))
-     *
-     * @param target target that the potion's effect will act on
+     * @param target target of the item's effects
      */
     @Override
     public void useOn(MagicEffectRealization target) {
-        // TODO Unimplemented
+        if (tryUsage()) {
+            enforceMagic(mana);
+        }
+    }
+
+    /**
+     * Returns a string representation of the mana potion in the format:
+     * <p>
+     * "; +%dMP" with the arguments:
+     * <ul>
+     *  <li>{@link ManaPotion#mana} (with sign before)</li>
+     * </ul>
+     *
+     * @return additional string representation of the mana potion
+     */
+    @Override
+    public String additionalOutputString() {
+        return "; +%dMP".formatted(mana);
     }
 }
