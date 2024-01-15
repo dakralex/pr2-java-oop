@@ -84,15 +84,15 @@ public class Concoction extends Potion {
         }
 
         if (health >= 0) {
-            heal(health);
+            target.heal(health);
         } else {
-            takeDamage(health);
+            target.takeDamage(Math.abs(health));
         }
 
         if (mana >= 0) {
-            enforceMagic(mana);
+            target.enforceMagic(mana);
         } else {
-            weakenMagic(mana);
+            target.weakenMagic(Math.abs(mana));
         }
 
         spells.forEach(spell -> spell.cast(this, target));

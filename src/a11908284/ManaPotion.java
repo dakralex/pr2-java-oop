@@ -44,7 +44,7 @@ public class ManaPotion extends Potion {
         }
 
         if (tryUsage()) {
-            enforceMagic(mana);
+            target.enforceMagic(mana);
         }
     }
 

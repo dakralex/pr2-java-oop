@@ -46,7 +46,7 @@ public class HealthPotion extends Potion {
         }
 
         if (tryUsage()) {
-            heal(health);
+            target.heal(health);
         }
     }
 

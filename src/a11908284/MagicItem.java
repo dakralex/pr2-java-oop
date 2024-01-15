@@ -165,7 +165,7 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
      */
     @Override
     public void takeDamagePercent(int percentage) {
-        usages = usages * (usages - percentage / 100);
+        usages = (int) (usages * (percentage / 100.0));
     }
 
     /**

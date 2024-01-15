@@ -120,8 +120,8 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
         }
 
         int minMana = level.toMana();
-        if (mana < minMana || manaBase < minMana) {
-            throw new IllegalArgumentException("The initial mana points of the wizard must not be less then required by their magic level.");
+        if (manaBase < minMana) {
+            throw new IllegalArgumentException("The mana base points of the wizard must not be less then required by their magic level.");
         }
 
         if (money < 0) {
@@ -235,7 +235,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The target of the spell must not be null.");
         }
 
-        if (isDead() || knownSpells.contains(spell)) {
+        if (isDead() || !knownSpells.contains(spell)) {
             return false;
         }
 
@@ -609,7 +609,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative damage must not be less than 0 or greater than 100.");
         }
 
-        HP = Math.max(HP - basicHP * (1 - percentage / 100), 0);
+        HP = (int) Math.max(HP - basicHP * (percentage / 100.0), 0);
     }
 
     /**
@@ -643,7 +643,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative mana decrease must not be less than 0 or greater than 100.");
         }
 
-        MP = Math.max(MP - basicMP * (1 - percentage / 100), 0);
+        MP = (int) Math.max(MP - basicMP * (percentage / 100.0), 0);
     }
 
     /**
@@ -676,7 +676,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative healing must not be less than 0 or greater than 100.");
         }
 
-        HP = Math.max(HP + basicHP * (1 - percentage / 100), 0);
+        HP = (int) Math.max(HP + basicHP * (percentage / 100.0), 0);
     }
 
     /**
@@ -708,7 +708,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative mana increase must not be less than 0 or greater than 100.");
         }
 
-        MP = Math.max(MP + basicMP * (1 - percentage / 100), 0);
+        MP = (int) Math.max(MP + basicMP * (percentage / 100.0), 0);
     }
 
     /**
