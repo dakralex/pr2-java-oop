@@ -1,72 +1,98 @@
 package a11908284;
 
 /**
- * A Spell object generates a magic effect on a target. To cast a spell the caster
- * has to provide sufficient mana and has to have the required magic level.
+ * The abstract class that generates the magic effect on a target.
  */
 public abstract class Spell {
     /**
-     * Must not be null or empty
+     * The name of the spell. This field must not be empty.
      */
-    private String name;
-    /**
-     * ;ust not be negative
-     */
-    private int manaCost;
-    /**
-     * Must not be null
-     */
-    private MagicLevel levelNeeded;
+    private final String name;
 
     /**
-     * @param name        name
-     * @param manaCost    manaCost
-     * @param levelNeeded levelNeeded to cast the spell
+     * The amount of mana points are needed for the spell. This field must not
+     * be negative.
+     */
+    private final int manaCost;
+
+    /**
+     * The magic level needed for the spell. This field must not be null.
+     */
+    private final MagicLevel levelNeeded;
+
+    /**
+     * Create a abstract Spell instance.
+     *
+     * @param name        name of the attacking spell
+     * @param manaCost    cost of mana points to use the attacking spell
+     * @param levelNeeded the level needed to use the attacking spell
      */
     protected Spell(String name, int manaCost, MagicLevel levelNeeded) {
-        // TODO Unimplemented
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("The name of a spell must not be null or empty.");
+        }
+
+        if (manaCost < 0) {
+            throw new IllegalArgumentException("The mana cost of a spell must not be negative.");
+        }
+
+        if (levelNeeded == null) {
+            throw new IllegalArgumentException("The minimum magic level of a spell must not be null.");
+        }
+
+        this.name = name;
+        this.manaCost = manaCost;
+        this.levelNeeded = levelNeeded;
     }
 
     /**
-     * Ensure necessary magic level and get necessary energy by calling provideMana
-     * on source (this will typically reduce MP in source).
-     * If provideMana fails (returns false) cast is canceled
-     * otherwise the abstract method doEffect is called
+     * Perform a cast between a source and a target.
      *
      * @param source caster of the spell
      * @param target target of the spell
      */
     public void cast(MagicSource source, MagicEffectRealization target) {
-        // TODO Unimplemented
+        boolean satisfyCriteria = source.provideMana(levelNeeded, manaCost);
+
+        if (satisfyCriteria) {
+            doEffect(target);
+        }
     }
 
     /**
-     * The actual effect of the spell on target must be implemented by the subclasses
+     * Performs the spell on the specified target.
      *
      * @param target target of the spell
      */
     public abstract void doEffect(MagicEffectRealization target);
 
     /**
-     * Returns ""; is overridden in deriving classes when needed
+     * Returns additional output for the spell.
      *
-     * @return ""
+     * @return always an empty string ("")
      */
     public String additionalOutputString() {
-        // TODO Unimplemented
         return "";
     }
 
     /**
-     * Return output in format "['name'('levelNeeded'): 'manaCost' mana'additionalOutputString']";
-     * where 'levelNeeded' is displayed as asterisks (see MagicLevel.toString)
-     * e.g. (full Output containing additionalOutputString) [Episkey(*): 5 mana; +20 HP]
+     * Returns a string representation of the spell in the format:
+     * <p>
+     * [%s(%s): %d mana%s] with the arguments:
+     * <ul>
+     *  <li>{@link Spell#name}</li>
+     *  <li>{@link Spell#levelNeeded}</li>
+     *  <li>{@link Spell#manaCost}</li>
+     *  <li>{@link Spell#additionalOutputString()}</li>
+     * </ul>
      *
-     * @return "['name'('levelNeeded'): 'manaCost' mana'additionalOutputString']"
+     * @return string representation of the spell
      */
     @Override
     public String toString() {
-        // TODO Unimplemented
-        return "";
+        String additionalOutput = additionalOutputString();
+
+        return "[%s(%s): %d mana%s]"
+                .formatted(name, levelNeeded, manaCost, additionalOutput);
     }
 }

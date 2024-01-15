@@ -1,37 +1,43 @@
 package a11908284;
 
 /**
- * A potion has a specific magic effect on its consumer
+ * The abstract class that represents a potion that has a magic effect on its
+ * consumer.
  */
 public abstract class Potion extends MagicItem {
+
     /**
-     * @param name   name
-     * @param usages number of usages still left
-     * @param price  price
-     * @param weight weight
+     * Creates a Potion instance.
+     *
+     * @param name   name of the magic item
+     * @param usages number of usages that are remaining
+     * @param price  price of the magic item
+     * @param weight weight of the magic item
      */
     protected Potion(String name, int usages, int price, int weight) {
         super(name, usages, price, weight);
-        // TODO Unimplemented
     }
 
     /**
-     * Delegates to method call useOn(drinker)
+     * Uses the potion on the specified drinker.
      *
-     * @param drinker the consumer of the potion
+     * @param drinker the target of the potion's effects
      */
     public void drink(Wizard drinker) {
-        // TODO Unimplemented
+        useOn(drinker);
     }
 
     /**
-     * returns "gulp" if usages is equal to 1, "gulps" otherwise
+     * Returns the suffix of the potion usages
      *
-     * @return "gulp" or "gulps" depending on number of usages left
+     * @return if the remaining usages is equal to 1 then "gulp", else "gulps"
      */
     @Override
     public String usageString() {
-        // TODO Unimplemented
-        return "";
+        if (getUsages() == 1) {
+            return "gulp";
+        }
+
+        return "gulps";
     }
 }

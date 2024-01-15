@@ -1,134 +1,184 @@
 package a11908284;
 
 /**
- * MagicItems are items that can cause magic effects on other objects. So they are a source
- * of magic. As items they can be traded and they also can be the target of magic effects
+ * The abstract class that represents items which can be traded, can have and
+ * cause magic effects.
  */
 public abstract class MagicItem implements Tradeable, MagicEffectRealization, MagicSource {
+
     /**
-     * Must not be null or empty
+     * The name of the magic item. This field must not be null.
      */
-    private String name;
+    private final String name;
     /**
-     * Number of usages remaining; must not be negative
+     * The price of the magic item. This field must not be negative.
+     */
+    private final int price;
+    /**
+     * The weight of the magic item. This field must not be negative.
+     */
+    private final int weight;
+    /**
+     * The number of usages that are remaining. This field must not be
+     * negative.
      */
     private int usages;
-    /**
-     * Must not be negative
-     */
-    private int price;
-    /**
-     * must not be negative
-     */
-    private int weight;
 
     /**
-     * @param name   name
-     * @param usages number of usages still left
-     * @param price  price
-     * @param weight weight
+     * Creates a magic item instance.
+     *
+     * @param name   name of the magic item
+     * @param usages number of usages that are remaining
+     * @param price  price of the magic item
+     * @param weight weight of the magic item
      */
     protected MagicItem(String name, int usages, int price, int weight) {
-        // TODO Unimplemented
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("The name of a magic item must not be null or empty.");
+        }
+
+        if (usages < 0) {
+            throw new IllegalArgumentException("The remaining usages of a magic item must not be negative.");
+        }
+
+        if (price < 0) {
+            throw new IllegalArgumentException("The price of a magic item must not be negative.");
+        }
+
+        if (weight < 0) {
+            throw new IllegalArgumentException("The weight of a magic item must not be negative.");
+        }
+
+        this.name = name;
+        this.usages = usages;
+        this.price = price;
+        this.weight = weight;
     }
 
     /**
-     * Returns value of usages (for access from deriving classes)
+     * Returns the amount of remaining usages.
      *
-     * @return value of instance variable usages
+     * @return amount of remaining usages
      */
     public int getUsages() {
-        // TODO Unimplemented
-        return 0;
+        return usages;
     }
 
     /**
-     * If usages > 0 reduce usage by 1 and return true, otherwise return false
+     * Returns whether the magic item can still be used
      *
-     * @return returns true if usage is still possible
+     * @return whether the magic item can still be used
      */
     public boolean tryUsage() {
-        // TODO Unimplemented
-        return false;
+        if (usages > 0) {
+            usages -= 1;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
-     * Returns "use" if usages is equal to 1, "uses" otherwise
+     * Returns the suffix depending on the amount of remaining usages
      *
-     * @return "use" or "uses" depending on the value of usages
+     * @return if remaining usages are equal to 1 then "use", else "uses"
      */
     public String usageString() {
-        // TODO Unimplemented
-        return "";
+        if (usages == 1) {
+            return "use";
+        } else {
+            return "uses";
+        }
     }
 
     /**
-     * returns empty string. Is overridden in deriving classes as needed
+     * Returns additional output for the magic item.
      *
-     * @return ""
+     * @return always returns ""
      */
     public String additionalOutputString() {
-        // TODO Unimplemented
         return "";
     }
 
     /**
-     * Formats this object according to
-     * "['name'; 'weight' g; 'price' 'currencyString'; 'usages' 'usageString''additionalOutputString']"
-     * 'currencyString' is "Knut" if price is 1, "Knuts" otherwise
-     * e.g. (when additionalOutput() returns an empty string)
-     * "[Accio Scroll; 1 g; 1 Knut; 5 uses]" or "[Alohomora Scroll; 1 g; 10 Knuts; 1 use]"
+     * Returns a string representation of the magic item in the format:
+     * <p>
+     * [%s; %d g; %s; %d %s%s] with the arguments:
+     * <ul>
+     *  <li>{@link MagicItem#name}</li>
+     *  <li>{@link MagicItem#weight}</li>
+     *  <li>{@link MagicItem#price}</li>
+     *  <li>{@link MagicItem#currencyString()}</li>
+     *  <li>{@link MagicItem#usages}</li>
+     *  <li>{@link MagicItem#usageString()}</li>
+     *  <li>{@link MagicItem#additionalOutputString()}</li>
+     * </ul>
      *
-     * @return "['name'; 'weight' g; 'price' 'currencyString'; 'usages' 'usageString''additionalOutputString']"
+     * @return string representation of the magic item
      */
     @Override
     public String toString() {
-        // TODO Unimplemented
-        return "";
+        String currencyString = currencyString();
+        String usageString = usageString();
+        String additionalOutput = additionalOutputString();
+
+        return "[%s; %d g; %s; %d %s%s]"
+                .formatted(name, weight, currencyString, usages, usageString, additionalOutput);
     }
 
-    //Tradeable Interface:
+    /**
+     * Returns the suffix depending on the price
+     *
+     * @return if the price is equal to 1 then "Knut", else "Knuts"
+     */
+    private String currencyString() {
+        if (price == 1) {
+            return "Knut";
+        } else {
+            return "Knuts";
+        }
+    }
 
     /**
-     * Returns price of the object
+     * Returns price of the magic item.
      *
-     * @return value of instance variable price
+     * @return price of the magic item
      */
     @Override
     public int getPrice() {
-        // TODO Unimplemented
-        return 0;
+        return price;
     }
 
     /**
-     * Returns weight of the object
+     * Returns the weight of the magic item.
      *
-     * @return value of instance variable weight
+     * @return weight
      */
     @Override
     public int getWeight() {
-        // TODO Unimplemented
-        return 0;
+        return weight;
     }
 
-    //MagicSource Interface:
-
     /**
-     * Always returns true; no Exceptions needed
+     * Returns whether mana could be provided
+     *
+     * @param levelNeeded magic level minimum to provide the mana points
+     * @param amount      amount of mana points that will be provided
+     * @return always returns true
      */
     @Override
     public boolean provideMana(MagicLevel levelNeeded, int amount) {
-        // TODO Unimplemented
-        return false;
+        return true;
     }
 
-    //MagicEffectRealization Interface:
-
     /**
-     * Reduce usages to usages*(1-percentage/100.)
+     * Reduces usages by the specified percentage.
+     *
+     * @param percentage relative amount of damage (value between [0;100])
      */
     @Override
     public void takeDamagePercent(int percentage) {
-        // TODO Unimplemented
+        usages = usages * (usages - percentage / 100);
     }
 }
