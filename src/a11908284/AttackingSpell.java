@@ -1,69 +1,106 @@
 package a11908284;
 
+import java.util.Set;
+
 /**
- * Magic spells that do some sort of damage to a target
+ * This class represents a spell that does some sort of damage.
  */
 public class AttackingSpell extends Spell {
-    /**
-     * Defines, if HP or MP is affected.
-     * <p>
-     * type == true: affects HP
-     * <p>
-     * type == false: affects MP
-     */
-    private boolean type;
-    /**
-     * Defines, if amount is interpreted as an absolute value or as a percentage.
-     * <p>
-     * percentage == true: deduct value to subtract as 'amount' percentage of basic value
-     * <p>
-     * percentage == false: subtract amount directly
-     */
-    private boolean percentage;
-    /**
-     * Has to be non negative.
-     * <p>
-     * if percentage==true, amount must be in the interval [0,100]
-     */
-    private int amount;
 
     /**
-     * @param name        name
-     * @param manaCost    manaCost
-     * @param levelNeeded levelNeeded
-     * @param type        defines if health or mana is affected
-     * @param percentage  defines if amount is an absolute or a percentage value
-     * @param amount      amount
+     * Whether health points (true) or mana points (false) are affected.
+     */
+    private final boolean type;
+
+    /**
+     * Whether amount is interpreted as a percentage (true) or as an absolute
+     * (false).
+     */
+    private final boolean percentage;
+
+    /**
+     * The damage of the attacking spell. This field must not be negative.
+     * <p>
+     * If this value should be interpreted as a
+     * {@link AttackingSpell#percentage}, it must have a value from 0 to 100.
+     */
+    private final int amount;
+
+    /**
+     * Create an attacking instance.
+     *
+     * @param name        name of the attacking spell
+     * @param manaCost    cost of mana points to use the attacking spell
+     * @param levelNeeded the level needed to use the attacking spell
+     * @param type        whether HP (true) or MP (false) are affected
+     * @param percentage  whether amount is a percentage or not
+     * @param amount      the amount of the attacking spell
      */
     public AttackingSpell(String name, int manaCost, MagicLevel levelNeeded, boolean type, boolean percentage, int amount) {
         super(name, manaCost, levelNeeded);
-        // TODO Unimplemented
+
+        if (amount < 0) {
+            throw new IllegalArgumentException("The damage of the attacking spell must not be negative.");
+        }
+
+        if (percentage && amount > 100) {
+            throw new IllegalArgumentException("The relative damage of the attacking spell must be a percentage (value from 0 to 100).");
+        }
+
+        this.type = type;
+        this.percentage = percentage;
+        this.amount = amount;
     }
 
     /**
-     * If the target is protected against this spell (isProtected), then protection against
-     * exactly this spell is removed (removeProtection).
-     * Otherwise use one of the functions takeDamage, takeDamagePercent, weakenMagic or
-     * weakenMagicPercent on target according to the flags type and percentage.
+     * Performs the attacking spell on the specified target.
+     * <p>
+     * This method will remove the protection of the spell without any other
+     * effect if the target had protection against the spell beforehand. Only at
+     * the second invocation it will do its inherent effect.
      *
-     * @param target target that takes the damage
+     * @param target target of the spell
      */
     @Override
     public void doEffect(MagicEffectRealization target) {
-        // TODO Unimplemented
+        if (target.isProtected(this)) {
+            target.removeProtection(Set.of(this));
+            return;
+        }
+
+        if (type) {
+            if (percentage) {
+                target.takeDamagePercent(amount);
+            } else {
+                target.takeDamage(amount);
+            }
+        } else {
+            if (percentage) {
+                target.weakenMagicPercent(amount);
+            } else {
+                target.weakenMagic(amount);
+            }
+        }
     }
 
     /**
-     * Returns "; -'amount' 'percentage' 'HPorMP'".
-     * where 'percentage' is a '%'-sign if percentage is true,
-     * empty otherwise and HPorMP is HP if type is true, MP otherwise.
-     * E. g. "; -10 MP" or "; -50 % HP"
+     * Returns the additional spell characteristics in the format:
+     * <p>
+     * "; -%d%s %s" with the arguments:
+     * <ul>
+     *  <li>{@link AttackingSpell#amount}</li>
+     *  <li>{@link AttackingSpell#percentage}: "%" or ""</li>
+     *  <li>{@link AttackingSpell#type}: "HP" or "MP"</li>
+     * </ul>
      *
-     * @return "; -'amount' 'percentage' 'HPorMP'".
+     * @return additional string representation of the attacking spell
      */
     @Override
     public String additionalOutputString() {
-        // TODO Unimplemented
-        return "";
+        String typeString = type ? "HP" : "MP";
+        String percentageString = percentage ? " %" : "";
+
+        return "; -%d%s %s"
+                .formatted(amount, percentageString, typeString);
     }
 }

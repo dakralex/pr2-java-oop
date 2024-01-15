@@ -1,64 +1,95 @@
 package a11908284;
 
 /**
- * Healing spells increase the targets health or mana
+ * This class represents a spell that does some sort of healing.
  */
 public class HealingSpell extends Spell {
-    /**
-     * Defines, if HP or MP is affected
-     * <p>
-     * type == true: affects HP
-     * <p>
-     * type == false: affects MP
-     */
-    private boolean type;
-    /**
-     * Defines, if amount is interpreted as an absolute value or as a percentage.
-     * <p>
-     * percentage == true: deduct value to subtract as 'amount' percentage of basic value
-     * <p>
-     * percentage == false: subtract amount directly
-     */
-    private boolean percentage;
-    /**
-     * Has to be non negative; if percentage==true, amount must be in the interval [0,100]
-     */
-    private int amount;
 
     /**
-     * @param name        name
-     * @param manaCost    manaCost
-     * @param levelNeeded levelNeeded
-     * @param type        defines if health or mana is affected
-     * @param percentage  defines if amount is an absolute or a percentage value
-     * @param amount      amount
+     * Whether health points (true) or mana points (false) are affected.
+     */
+    private final boolean type;
+
+    /**
+     * Whether amount is interpreted as a percentage (true) or as an absolute
+     * (false).
+     */
+    private final boolean percentage;
+
+    /**
+     * The healing of the healing spell. This field must not be negative.
+     * <p>
+     * If this value should be interpreted as a {@link HealingSpell#percentage},
+     * it must have a value from 0 to 100.
+     */
+    private final int amount;
+
+    /**
+     * Create an healing spell instance.
+     *
+     * @param name        name of the attacking spell
+     * @param manaCost    cost of mana points to use the attacking spell
+     * @param levelNeeded the level needed to use the attacking spell
+     * @param type        whether HP (true) or MP (false) are affected
+     * @param percentage  whether amount is a percentage or not
+     * @param amount      the amount of the attacking spell
      */
     public HealingSpell(String name, int manaCost, MagicLevel levelNeeded, boolean type, boolean percentage, int amount) {
         super(name, manaCost, levelNeeded);
-        // TODO Unimplemented
+
+        if (amount < 0) {
+            throw new IllegalArgumentException("The healing of the healing spell must not be negative.");
+        }
+
+        if (percentage && amount > 100) {
+            throw new IllegalArgumentException("The relative healing of the healing spell must be a percentage (value from 0 to 100).");
+        }
+
+        this.type = type;
+        this.percentage = percentage;
+        this.amount = amount;
     }
 
     /**
-     * Use one of the functions heal, healPercent, enforceMagic or enforceMagicPercent according
-     * to the flags type and percentage
+     * Performs the healing spell on the specified target.
      *
-     * @param target target that receives healing
+     * @param target target of the spell
      */
     @Override
     public void doEffect(MagicEffectRealization target) {
-        // TODO Unimplemented
+        if (type) {
+            if (percentage) {
+                target.healPercent(amount);
+            } else {
+                target.heal(amount);
+            }
+        } else {
+            if (percentage) {
+                target.enforceMagicPercent(amount);
+            } else {
+                target.enforceMagic(amount);
+            }
+        }
     }
 
     /**
-     * Returns "; +'amount' 'percentage' 'HPorMP'", where 'percentage' is a '%'-sign if percentage
-     * is true, empty otherwise and HPorMP is HP if type is true, MP otherwise
-     * e. g. "; +10 HP" or "; +50 % MP"
+     * Returns the additional spell characteristics in the format:
+     * <p>
+     * "; -%d%s %s" with the arguments:
+     * <ul>
+     *  <li>{@link HealingSpell#amount}</li>
+     *  <li>{@link HealingSpell#percentage}: "%" or ""</li>
+     *  <li>{@link HealingSpell#type}: "HP" or "MP"</li>
+     * </ul>
      *
-     * @return "; +'amount' 'percentage' 'HPorMP'"
+     * @return additional string representation of the healing spell
      */
     @Override
     public String additionalOutputString() {
-        // TODO Unimplemented
-        return "";
+        String typeString = type ? "HP" : "MP";
+        String percentageString = percentage ? " %" : "";
+
+        return "; +%d%s %s"
+                .formatted(amount, percentageString, typeString);
     }
 }

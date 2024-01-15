@@ -1,47 +1,61 @@
 package a11908284;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
- * ProtectingSpell objects grant protection against a number of specific attacking spells
+ * The class that represents a protecting spell, which grants protection against
+ * a number of specific attacking spells.
  */
 public class ProtectingSpell extends Spell {
-    /**
-     * Must not be null or empty; use HashSet as concrete type
-     */
-    private Set<AttackingSpell> attacks;
 
     /**
-     * @param name        name
-     * @param manaCost    manaCost
-     * @param levelNeeded levelNeeded
-     * @param attacks     attacking spells against which protection is granted
+     * The set of attacking spells that the target is protected from. This field
+     * must not be null or empty.
+     */
+    private final Set<AttackingSpell> attacks;
+
+    /**
+     * Create an protecting spell instance.
+     *
+     * @param name        name of the protecting spell
+     * @param manaCost    cost of mana points to use the protecting spell
+     * @param levelNeeded the level needed to use the protecting spell
+     * @param attacks     set of attacking spells that the target is protected
+     *                    from
      */
     public ProtectingSpell(String name, int manaCost, MagicLevel levelNeeded, Set<AttackingSpell> attacks) {
         super(name, manaCost, levelNeeded);
-        // TODO Unimplemented
+
+        if (attacks == null || attacks.isEmpty()) {
+            throw new IllegalArgumentException("The set of attacks of the protecting spell must not be null or empty.");
+        }
+
+        this.attacks = new HashSet<>(attacks);
     }
 
     /**
-     * Call setProtection method on target with attacks as parameter
+     * Performs protection from the specified attacking spells
      *
-     * @param target target for which protection is granted
+     * @param target target of the spell
      */
     @Override
     public void doEffect(MagicEffectRealization target) {
-        // TODO Unimplemented
+        target.setProtection(attacks);
     }
 
     /**
-     * Returns "; protects against 'listOfAttackSpells'" where 'listOfAttackSpells' is a bracketed
-     * list of all the attack spells (Java default toString method for sets)
-     * e. g. "; protects against [[Confringo: 10 mana; -20 HP], [Bombarda: 20 mana; -50 % HP]]"
+     * Returns the additional spell characteristics in the format:
+     * <p>
+     * "; protects against %s" with the arguments:
+     * <ul>
+     *  <li>{@link ProtectingSpell#attacks} (default toString() output)</li>
+     * </ul>
      *
-     * @return "; protects against 'listOfAttackSpells'"
+     * @return additional string representation of the protecting spell
      */
     @Override
     public String additionalOutputString() {
-        // TODO Unimplemented
-        return "";
+        return "; protects against %s".formatted(attacks);
     }
 }
