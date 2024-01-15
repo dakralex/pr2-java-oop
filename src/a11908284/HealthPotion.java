@@ -53,7 +53,7 @@ public class HealthPotion extends Potion {
     /**
      * Returns a string representation of the health potion in the format:
      * <p>
-     * "; +%dHP" with the arguments:
+     * "; +%d HP" with the arguments:
      * <ul>
      *  <li>{@link HealthPotion#health} (with sign before)</li>
      * </ul>
@@ -62,6 +62,6 @@ public class HealthPotion extends Potion {
      */
     @Override
     public String additionalOutputString() {
-        return "; +%dHP".formatted(health);
+        return "; +%d HP".formatted(health);
     }
 }

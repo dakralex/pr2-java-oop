@@ -51,7 +51,7 @@ public class ManaPotion extends Potion {
     /**
      * Returns a string representation of the mana potion in the format:
      * <p>
-     * "; +%dMP" with the arguments:
+     * "; +%d MP" with the arguments:
      * <ul>
      *  <li>{@link ManaPotion#mana} (with sign before)</li>
      * </ul>
@@ -60,6 +60,6 @@ public class ManaPotion extends Potion {
      */
     @Override
     public String additionalOutputString() {
-        return "; +%dMP".formatted(mana);
+        return "; +%d MP".formatted(mana);
     }
 }

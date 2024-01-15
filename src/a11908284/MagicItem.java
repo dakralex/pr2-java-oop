@@ -171,7 +171,7 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
     /**
      * Returns a string representation of the magic item in the format:
      * <p>
-     * [%s; %d g; %s; %d %s%s] with the arguments:
+     * "[%s; %d g; %d %s; %d %s%s]" with the arguments:
      * <ul>
      *  <li>{@link MagicItem#name}</li>
      *  <li>{@link MagicItem#weight}</li>
@@ -190,7 +190,7 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
         String usageString = usageString();
         String additionalOutput = additionalOutputString();
 
-        return "[%s; %d g; %s; %d %s%s]"
-                .formatted(name, weight, currencyString, usages, usageString, additionalOutput);
+        return "[%s; %d g; %d %s; %d %s%s]"
+                .formatted(name, weight, price, currencyString, usages, usageString, additionalOutput);
     }
 }

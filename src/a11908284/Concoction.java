@@ -112,13 +112,13 @@ public class Concoction extends Potion {
      */
     @Override
     public String additionalOutputString() {
-        String healthSign = health >= 0 ? "+" : "-";
-        String manaSign = mana >= 0 ? "+" : "-";
+        String healthSign = health >= 0 ? "+" : "";
+        String manaSign = mana >= 0 ? "+" : "";
 
-        String healthString = health == 0 ? "" : " %s%d HP;".formatted(healthSign, health);
-        String manaString = mana == 0 ? "" : " %s%d MP;".formatted(manaSign, mana);
-        String spellsString = spells.isEmpty() ? "" : " cast %s".formatted(spells);
+        String healthString = health == 0 ? "" : "; %s%d HP".formatted(healthSign, health);
+        String manaString = mana == 0 ? "" : "; %s%d MP".formatted(manaSign, mana);
+        String spellsString = spells.isEmpty() ? "" : "; cast %s".formatted(spells);
 
-        return ";%s%s%s".formatted(healthString, manaString, spellsString);
+        return "%s%s%s".formatted(healthString, manaString, spellsString);
     }
 }
