@@ -1,539 +1,783 @@
 package a11908284;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Wizard class objects are the primary actors in the game. They can use and trade items, provide
- * magic energy, cast spells and also are affected be various magical effects.
+ * The class that represents a wizard that is the primary actor in the game. A
+ * wizard can use and trade items, provide magic energy, cast spells, and can be
+ * affected by various magical effects.
  */
 public class Wizard implements MagicSource, Trader, MagicEffectRealization {
+
     /**
-     * Not null not empty
+     * The name of the wizard. This field must not be null or empty.
      */
-    private String name;
+    private final String name;
+
     /**
-     * Not null
+     * The magic level the wizard is on. This field must not be null.
      */
-    private MagicLevel level;
+    private final MagicLevel level;
+
     /**
-     * Not negative
+     * The base level of health points, which is used for health calculations.
+     * This field must not be negative.
      */
-    private int basicHP;
+    private final int basicHP;
+
     /**
-     * Not negative; defaults to basicHP
+     * The health points of the wizard (basicHP by default). This field must not
+     * be negative.
      */
     private int HP;
+
     /**
-     * Not less than the manapoints associated with the magic level
+     * The base level of mana points, which is used for magic calculations. This
+     * field must not be less than the mana points required for the
+     * {@link Wizard#level} and must not be negative.
      */
-    private int basicMP;
+    private final int basicMP;
+
     /**
-     * Not negative; defaults to basicMP
+     * The mana points of the wizard (basicMP by default). This field must not
+     * be negative.
      */
     private int MP;
+
     /**
-     * Not negative
+     * The money the wizard has. This field must not be negative.
      */
     private int money;
-    /**
-     * Not null, may be empty; use HashSet for instantiation
-     */
-    private Set<Spell> knownSpells;
-    /**
-     * Not null, may be empty; use HashSet for instantiation
-     */
-    private Set<AttackingSpell> protectedFrom;
-    /**
-     * Not negative
-     */
-    private int carryingCapacity;
-    /**
-     * Not null, may be empty, use HashSet for instantiation, total weight of inventory
-     * may never exceed carryingCapacity
-     */
-    private Set<Tradeable> inventory;
 
     /**
-     * @param name             name
-     * @param level            the magic level (proficiency needed to cast spells)
-     * @param basicHP          base for percentage health calculations
-     * @param HP               current health
-     * @param basicMP          base for percentage mana calculations
-     * @param MP               current mana
-     * @param money            current money
-     * @param knownSpells      set of known spells
-     * @param protectedFrom    set of spells the object is protected against
-     * @param carryingCapacity maximum carrying capacity
-     * @param inventory        set of items the object is currently carrying
+     * The spells the wizard can use. This field must not be null.
      */
-    public Wizard(String name, MagicLevel level, int basicHP, int HP, int basicMP, int MP, int money,
-                  Set<Spell> knownSpells, Set<AttackingSpell> protectedFrom, int carryingCapacity,
-                  Set<Tradeable> inventory) {
-        // TODO Unimplemented
+    private final Set<Spell> knownSpells;
+
+    /**
+     * The spells the wizard is protected from. This field must not be null.
+     */
+    private final Set<AttackingSpell> protectedFrom;
+
+    /**
+     * The capacity of the wizard's inventory. This field must not be negative.
+     */
+    private final int carryingCapacity;
+
+    /**
+     * The inventory of the wizard. This field must not be null. This field's
+     * value must neve exceed the {@link Wizard#carryingCapacity}.
+     */
+    private final Set<Tradeable> inventory;
+
+    /**
+     * Creates a wizard instance.
+     *
+     * @param name             name of the wizard
+     * @param level            initial magic level the wizard is on
+     * @param healthBase       base level of health points
+     * @param health           initial health points of the wizard (healthBase
+     *                         by default)
+     * @param manaBase         base level of mana points
+     * @param mana             initial mana points of the wizard (manaBase by
+     *                         default)
+     * @param money            initial money the wizard has
+     * @param knownSpells      initial spells the wizard can use
+     * @param protectedFrom    initial spells the wizard is protected from
+     * @param carryingCapacity initial capacity of the wizard's inventory
+     * @param inventory        initial inventory of the wizard
+     */
+    public Wizard(
+            String name,
+            MagicLevel level,
+            int healthBase,
+            int health,
+            int manaBase,
+            int mana,
+            int money,
+            Set<? extends Spell> knownSpells,
+            Set<? extends AttackingSpell> protectedFrom,
+            int carryingCapacity,
+            Set<? extends Tradeable> inventory
+    ) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("The name of the wizard must not be null or empty.");
+        }
+
+        if (level == null) {
+            throw new IllegalArgumentException("The initial magic level of the wizard must not be null.");
+        }
+
+        if (healthBase < 0 || health < 0) {
+            throw new IllegalArgumentException("The (base) health points of the wizard must not be negative.");
+        }
+
+        if (manaBase < 0 || mana < 0) {
+            throw new IllegalArgumentException("The (base) mana points of the wizard must not be negative.");
+        }
+
+        int minMana = level.toMana();
+        if (mana < minMana || manaBase < minMana) {
+            throw new IllegalArgumentException("The initial mana points of the wizard must not be less then required by their magic level.");
+        }
+
+        if (money < 0) {
+            throw new IllegalArgumentException("The initial money value of the wizard must not be negative.");
+        }
+
+        if (knownSpells == null) {
+            throw new IllegalArgumentException("The initial set of known spells of the wizard must not be null.");
+        }
+
+        if (protectedFrom == null) {
+            throw new IllegalArgumentException("The initial set of spells the wizard is protected from must not be null.");
+        }
+
+        if (carryingCapacity < 0) {
+            throw new IllegalArgumentException("The initial carrying capacity of the wizard must not be negative.");
+        }
+
+        if (inventory == null) {
+            throw new IllegalArgumentException("The initial inventory of the wizard must not be null.");
+        }
+
+        int totalWeight = inventory.stream().mapToInt(Tradeable::getWeight).sum();
+        if (totalWeight > carryingCapacity) {
+            throw new IllegalArgumentException("The initial inventory of the wizard must not exceed the carrying capacity.");
+        }
+
+        this.name = name;
+        this.level = level;
+        basicHP = healthBase;
+        HP = health;
+        basicMP = manaBase;
+        MP = mana;
+        this.money = money;
+        this.knownSpells = new HashSet<>(knownSpells);
+        this.protectedFrom = new HashSet<>(protectedFrom);
+        this.carryingCapacity = carryingCapacity;
+        this.inventory = new HashSet<>(inventory);
     }
 
     /**
-     * Return true, if HP is 0, false otherwise
+     * Returns whether the wizard is dead.
      *
-     * @return true, if HP is 0, false otherwise
+     * @return whether the wizard is dead
      */
     public boolean isDead() {
-        // TODO Unimplemented
-        return false;
+        return HP == 0;
     }
 
     /**
-     * Calculates and returns the total weight of all the items in the inventory
+     * Returns the total weight of all the items in the inventory.
      *
      * @return total weight of all items in inventory
      */
     private int inventoryTotalWeight() {
-        // TODO Unimplemented
-        return 0;
+        return inventory.stream().mapToInt(Tradeable::getWeight).sum();
     }
 
     /**
-     * If spell is null, IllegalArgumentException has to be thrown;
-     * if wizard is dead (isDead) no action can be taken and false is returned;
-     * add spell to the set of knownSpells;
-     * returns true, if insertion was successful, false otherwise.
+     * Makes the wizard learn the specified spell.
      *
-     * @param s spell to be learned
-     * @return true, if insertion was successful, false otherwise.
+     * @param spell the spell to learn
+     * @return whether the learning was successful
+     * @throws IllegalArgumentException if spell is null
      */
-    public boolean learn(Spell s) {
-        // TODO Unimplemented
-        return false;
+    public boolean learn(Spell spell) {
+        if (spell == null) {
+            throw new IllegalArgumentException("The spell to learn must not be null.");
+        }
+
+        if (isDead()) {
+            return false;
+        }
+
+        return knownSpells.add(spell);
     }
 
     /**
-     * If spell is null, IllegalArgumentException has to be thrown;
-     * if wizard is dead (isDead) no action can be taken and false is returned;
-     * remove spell from the set of knownSpells;
-     * returns true if removal was successful, false otherwise.
+     * Makes the wizard forget the spell.
      *
-     * @param s spell that the object is about to learn
-     * @return true, if removal was successful, false otherwise.
+     * @param spell the spell to forget
+     * @return whether the forgetting was successful
+     * @throws IllegalArgumentException if spell is null
      */
-    public boolean forget(Spell s) {
-        // TODO Unimplemented
-        return false;
+    public boolean forget(Spell spell) {
+        if (spell == null) {
+            throw new IllegalArgumentException("The spell to forget must not be null.");
+        }
+
+        if (isDead()) {
+            return false;
+        }
+
+        return knownSpells.remove(spell);
     }
 
     /**
-     * If s or target is null, IllegalArgumentException has to be thrown;
-     * if wizard is dead (isDead) no action can be taken and false is returned;
-     * if wizard does not know the spell, false is returned;
-     * call cast on s with this as source and parameter target as target
-     * return true, if cast was called;
+     * Makes the wizard cast the specified spell on the specified target.
      *
-     * @param s      spell to be cast
-     * @param target target of the spell to cast
-     * @return true, if cast was called, false otherwise;
+     * @param spell  spell to be cast
+     * @param target target of the spell
+     * @return whether the casting was successful
+     * @throws IllegalArgumentException if spell or target is null
      */
-    public boolean castSpell(Spell s, MagicEffectRealization target) {
-        // TODO Unimplemented
-        return false;
+    public boolean castSpell(Spell spell, MagicEffectRealization target) {
+        if (spell == null) {
+            throw new IllegalArgumentException("The spell to cast must not be null.");
+        }
+
+        if (target == null) {
+            throw new IllegalArgumentException("The target of the spell must not be null.");
+        }
+
+        if (isDead() || knownSpells.contains(spell)) {
+            return false;
+        }
+
+        spell.cast(this, target);
+        return true;
     }
 
     /**
-     * If this object's knownSpells is empty, return false
-     * otherwise choose a random spell from knownSpells and delegate to
-     * castSpell(Spell, MagicEffectRealization)
+     * Makes the wizard cast a random spell.
      *
-     * @param target target of the spell to cast
-     * @return false, if the object does not know a spell, otherwise the
-     * result of the delegation to castSpell
+     * @param target target of the spell
+     * @return whether the casting was successful
+     * @throws IllegalArgumentException if target is null
      */
     public boolean castRandomSpell(MagicEffectRealization target) {
-        // TODO Unimplemented
-        return false;
+        if (target == null) {
+            throw new IllegalArgumentException("Target on which random spell should be cast must not be null.");
+        }
+
+        if (knownSpells.isEmpty()) {
+            return false;
+        }
+
+        int randomInt = ThreadLocalRandom.current().nextInt(knownSpells.size());
+
+        Optional<Spell> randomSpell = knownSpells.stream().skip(randomInt).findFirst();
+
+        return randomSpell.filter(spell -> castSpell(spell, target)).isPresent();
     }
 
     /**
-     * If item or target is null, IllegalArgumentException has to be thrown;
-     * if wizard is dead (isDead) no action can be taken and false is returned;
-     * if wizard does not possess the item, false is returned;
-     * call useOn on the item with parameter target as target;
-     * return true, if useOn was called.
+     * Makes the wizard use the specified item on the specified target.
      *
      * @param item   item to be used
-     * @param target target on which item is to be used on
-     * @return true, if useOn was called, false otherwise
+     * @param target target to use the item on
+     * @return whether the usage was successful
+     * @throws IllegalArgumentException if item or target is null
      */
     public boolean useItem(Tradeable item, MagicEffectRealization target) {
-        // TODO Unimplemented
-        return false;
+        if (item == null) {
+            throw new IllegalArgumentException("The item to use must not be null.");
+        }
+
+        if (target == null) {
+            throw new IllegalArgumentException("The target to use the item on must not be null.");
+        }
+
+        if (isDead() || !possesses(item)) {
+            return false;
+        }
+
+        item.useOn(target);
+        return true;
     }
 
     /**
-     * If this object's inventory is empty, return false;
-     * otherwise choose a random item from inventory and delegate to
-     * useItem(Tradeable, MagicEffectRealization).
+     * Returns a random item from the inventory.
      *
-     * @param target target on which item is to be used on
-     * @return false, if the object does not possess any item, otherwise the
-     * result of the delegation to useItem
+     * @return random item from the inventory or none
+     */
+    private Optional<Tradeable> getRandomItem() {
+        if (inventory.isEmpty()) {
+            return Optional.empty();
+        }
+
+        int randomInt = ThreadLocalRandom.current().nextInt(inventory.size());
+
+        return inventory.stream().skip(randomInt).findFirst();
+    }
+
+    /**
+     * Makes the wizard use a random item.
+     *
+     * @param target target to use the item on
+     * @return whether the usage was successful
+     * @throws IllegalArgumentException if target is null
      */
     public boolean useRandomItem(MagicEffectRealization target) {
-        // TODO Unimplemented
-        return false;
+        if (target == null) {
+            throw new IllegalArgumentException("Trader to use random item on must not be empty.");
+        }
+
+        Optional<Tradeable> randomItem = getRandomItem();
+
+        return randomItem.filter(item -> useItem(item, target)).isPresent();
     }
 
     /**
-     * If item or target is null, IllegalArgumentException has to be thrown;
-     * if wizard is dead (isDead), no action can be taken and false is returned;
-     * call purchase on the item with this as seller and target as buyer;
-     * return true, if purchase was called successfully (returned true), false
-     * otherwise.
+     * Makes the wizard sell the item to the specified target.
      *
-     * @param item   item to be sold
-     * @param target object the item is sold to (buyer)
-     * @return true, if purchase was called successfully (returned true), false
-     * otherwise.
+     * @param item   item to sell
+     * @param target target to sell the item to
+     * @return whether the selling was successful
+     * @throws IllegalArgumentException if item or target is null
      */
     public boolean sellItem(Tradeable item, Trader target) {
-        // TODO Unimplemented
-        return false;
+        if (item == null) {
+            throw new IllegalArgumentException("The item to sell must not be null.");
+        }
+
+        if (target == null) {
+            throw new IllegalArgumentException("The target to sell the item to must not be null.");
+        }
+
+        if (isDead() || !possesses(item)) {
+            return false;
+        }
+
+        return item.purchase(this, target);
     }
 
     /**
-     * If this object's inventory is empty, return false,
-     * otherwise choose a random item from inventory and delegate to
-     * sellItem(Tradeable, MagicEffectRealization).
+     * Makes the wizard sell a random item from their inventory.
      *
-     * @param target object the item is sold to (buyer)
-     * @return false, if the object does not possess any item, otherwise the
-     * result of the delegation to sellItem
+     * @param target target to sell the item to
+     * @return whether the selling was successful
+     * @throws IllegalArgumentException if the target is null
      */
     public boolean sellRandomItem(Trader target) {
-        // TODO Unimplemented
-        return false;
+        if (target == null) {
+            throw new IllegalArgumentException("Trader to sell random item to must not be empty.");
+        }
+
+        Optional<Tradeable> randomItem = getRandomItem();
+
+        return randomItem.filter(item -> sellItem(item, target)).isPresent();
     }
 
     /**
-     * Returns a string in the format
-     * "['name'('level'): 'HP'/'basicHP' 'MP'/'basicMP'; 'money' 'KnutOrKnuts'; knows 'knownSpells'; carries 'inventory']";
-     * where 'level' is the asterisks representation of the level
-     * (see MagicLevel.toString) and 'knownSpells' and 'inventory' use
-     * the default toString method of Java Set; 'KnutOrKnuts' is Knut
-     * if 'money' is 1, Knuts otherwise.
-     * E.g. [Ignatius(**): 70/100 100/150; 72 Knuts; knows [[Episkey(*): 5 mana; +20 HP], [Confringo: 10 mana; -20 HP]]; carries []]
+     * Makes the wizard provide the mana, if they are not dead and have the
+     * sufficient level and mana.
      *
-     * @return "['name'('level'): 'HP'/'basicHP' 'MP'/'basicMP'; 'money' 'KnutOrKnuts'; knows 'knownSpells'; carries 'inventory']"
-     */
-    @Override
-    public String toString() {
-        // TODO Unimplemented
-        return "";
-    }
-
-    //MagicSource Interface
-
-    /**
-     * If wizard is dead (isDead) no action can be taken and false is returned:
-     * check if level is at least levelNeeded, return false otherwise;
-     * if MP is less than manaAmount return false;
-     * subtract manaAmount from MP and return true.
-     *
-     * @param levelNeeded minimum magic level needed for the action
-     * @param manaAmount  amount of mana needed for the action
-     * @return true, if mana can be successfully provided, false otherwise
+     * @param levelNeeded magic level minimum to provide the mana points
+     * @param manaAmount  amount of mana points that will be provided
+     * @return whether the mana could be provided
+     * @throws IllegalArgumentException when the needed magic level is null
+     *                                  and/or the mana amount is negative
      */
     @Override
     public boolean provideMana(MagicLevel levelNeeded, int manaAmount) {
-        // TODO Unimplemented
+        if (levelNeeded == null) {
+            throw new IllegalArgumentException("The needed level must not be null.");
+        }
+
+        boolean hasLevel = level.compareTo(levelNeeded) >= 0;
+        boolean hasMana = MP >= manaAmount;
+
+        if (!isDead() && hasLevel && hasMana) {
+            MP -= manaAmount;
+
+            return true;
+        }
+
         return false;
     }
 
-    //Trader Interface
-
     /**
-     * Return true, if the item is in the inventory, false otherwise
+     * Returns whether the item is in the inventory of the wizard.
      *
-     * @param item object is tested, if it possesses this item
-     * @return true, if the item is in the inventory, false otherwise
+     * @param item item to test for
+     * @return whether the wizard has the item
+     * @throws IllegalArgumentException if the item is null
      */
     @Override
     public boolean possesses(Tradeable item) {
-        // TODO Unimplemented
-        return false;
+        if (item == null) {
+            throw new IllegalArgumentException("The item to check possession for must not be null.");
+        }
+
+        return inventory.contains(item);
     }
 
     /**
-     * Return true, if money is greater than or equal to amount, false otherwise
+     * Returns whether the wizard can afford the specified money amount.
      *
-     * @param amount object is tested, if it owns enough money to pay this amount
-     * @return true, if money is greater than or equal to amount, false otherwise
+     * @param amount amount to test for
+     * @return whether the wizard can afford the specified money amount
      */
     @Override
     public boolean canAfford(int amount) {
-        // TODO Unimplemented
-        return false;
+        return money >= amount;
     }
 
     /**
-     * Return true, if inventoryTotalWeight+weight is less than or equal to carryingCapacity, false otherwise
+     * Returns whether the wizard has the capacity to carry the specified
+     * additional weight.
      *
-     * @param weight test, if this weight can be added to object's inventory, without exceeding the
-     *               carryingCapacity
-     * @return true, if inventoryTotalWeight+weight is less than or equal to carryingCapacity, false otherwise
+     * @param weight weight to test for
+     * @return whether the wizard can carry the additional weight
      */
     @Override
     public boolean hasCapacity(int weight) {
-        // TODO Unimplemented
-        return false;
+        return inventoryTotalWeight() + weight <= carryingCapacity;
     }
 
     /**
-     * If wizard is dead (isDead) no action can be taken and false is returned;
-     * if this owns enough money deduct amount from money and return true,
-     * return false otherwise
+     * Makes the wizard pay the specified amount, if they are not dead.
      *
-     * @param amount to be payed
-     * @return true, if payment succeeds, false otherwise
+     * @param amount amount to pay
+     * @return whether the payment was successful
      */
     @Override
     public boolean pay(int amount) {
-        // TODO Unimplemented
+        if (!isDead() && canAfford(amount)) {
+            money -= amount;
+
+            return true;
+        }
+
         return false;
     }
 
     /**
-     * If wizard is dead (isDead), no action can be taken and false is returned;
-     * add amount to this object's money and return true.
+     * Makes the wizard earn the specified amount, if they are not dead.
      *
-     * @param amount amount to be received
-     * @return true, if reception succeeds, false otherwise
+     * @param amount amount to earn
+     * @return whether the earning was successful
      */
     @Override
     public boolean earn(int amount) {
-        // TODO Unimplemented
+        if (!isDead()) {
+            money += amount;
+
+            return true;
+        }
+
         return false;
     }
 
     /**
-     * Edd item to inventory if carryingCapacity is sufficient.
-     * returns true, if item is successfully added, false otherwise
-     * (carrying capacity exceeded or item is already in the inventory)
+     * Adds the item to the inventory of the wizard, if they can carry the
+     * additional item.
      *
-     * @param item item to be added to object's inventory
-     * @return true. if item is successfully added, false otherwise
+     * @param item item to add to the inventory
+     * @return whether they can carry the additional item
+     * @throws IllegalArgumentException if the item is null
      */
     @Override
     public boolean addToInventory(Tradeable item) {
-        // TODO Unimplemented
-        return false;
+        if (item == null) {
+            throw new IllegalArgumentException("The item to add must not be null.");
+        }
+
+        return hasCapacity(item.getWeight()) && inventory.add(item);
     }
 
     /**
-     * Remove item from inventory.
-     * returns true, if item is successfully removed, false otherwise
-     * (item not in the inventory).
+     * Removes the item of the inventory of the wizard, if they had it before.
      *
-     * @param item item to be removed from object's inventory
-     * @return true, if item is successfully removed, false otherwise
+     * @param item item to remove from the inventory
+     * @return whether the item was removed successfully
+     * @throws IllegalArgumentException if the item is null
      */
     @Override
     public boolean removeFromInventory(Tradeable item) {
-        // TODO Unimplemented
-        return false;
+        if (item == null) {
+            throw new IllegalArgumentException("The item to remove must not be null.");
+        }
+
+        return inventory.contains(item) && inventory.remove(item);
     }
 
     /**
-     * Returns true, if this object's HP are not 0 (alive wizard).
+     * Returns whether the wizard can steal.
      *
-     * @return true, if the object is alive
+     * @return whether the wizard is alive and therefore can steal
      */
     @Override
     public boolean canSteal() {
-        // TODO Unimplemented
-        return false;
+        return !isDead();
     }
 
     /**
-     * If thief is null, IllegalArgumentException has to be thrown;
-     * if thief cannot steal (canSteal returns false) no action can be taken
-     * and false is returned;
-     * returns false if, the object's inventory is empty;
-     * otherwise transfers a random item from the this object's inventory into
-     * the thief's inventory;
-     * if the thief's inventory has not enough capacity, the object just vanishes
-     * and false is returned;
-     * returns true, if theft was successful.
+     * Makes the specified thief steal from the wizard, if possible.
      *
-     * @param thief object that is stealing the item from the this-object.
-     * @return true, if theft was successful
+     * @param thief the thief that steals from this object
+     * @return whether the stealing was successful
      */
     @Override
     public boolean steal(Trader thief) {
-        // TODO Unimplemented
+        if (thief == null) {
+            throw new IllegalArgumentException("Thief must not be null.");
+        }
+
+        if (thief.canSteal()) {
+            Optional<Tradeable> optRandomItem = getRandomItem();
+
+            if (optRandomItem.isPresent()) {
+                Tradeable randomItem = optRandomItem.get();
+
+                removeFromInventory(randomItem);
+                return thief.addToInventory(randomItem);
+            }
+        }
+
         return false;
     }
 
     /**
-     * Returns true if, this object's HP are 0 (dead wizard)
+     * Returns whether the wizard is lootable
      *
-     * @return true if the object is dead
+     * @return whether the wizard is dead, therefore they can be looted
      */
     @Override
     public boolean isLootable() {
-        // TODO Unimplemented
-        return false;
+        return isDead();
     }
 
     /**
-     * Returns true if this object's HP are not 0 (alive wizard)
+     * Returns whether the wizard can loot
      *
-     * @return true, if the object is alive
+     * @return whether the wizard is alive, therefore they can loot
      */
     @Override
     public boolean canLoot() {
-        // TODO Unimplemented
-        return false;
+        return !isDead();
     }
 
     /**
-     * Of looter is null, IllegalArgumentException has to be thrown;
-     * if looter cannot loot (canLoot returns false), no action can be taken
-     * and false is returned;
-     * if the this object can be looted (isLootable), transfer all the items
-     * in the object's inventory into the looter's inventory;
-     * items that don't fit in the looter's inventory because auf the weight
-     * limitation just vanish.
-     * returns true, if at least one item was successfully transferred, false
-     * otherwise.
+     * Makes the specified looter loot the wizard.
      *
-     * @param looter object that is looting this-object.
-     * @return true, if looting was successful, false otherwise
+     * @param looter the looter that loots from the object
+     * @return whether the looting was successful
      */
     @Override
     public boolean loot(Trader looter) {
-        // TODO Unimplemented
+        if (looter == null) {
+            throw new IllegalArgumentException("Looter must not be null.");
+        }
+
+        if (looter.canLoot() && isLootable()) {
+            boolean anyAdded = inventory.stream()
+                    .map(looter::addToInventory).anyMatch(item -> item);
+
+            inventory.clear();
+
+            return anyAdded;
+        }
+
         return false;
     }
 
-    //MagicEffectRealization Interface
-
     /**
-     * Reduce the object's HP by amount ensuring however that HP does not
-     * become negative.
+     * Reduces the health points by the specified, absolute amount of damage.
+     * This method ensures that the health points will never drop below zero.
      *
-     * @param amount amount to be deducted from health
+     * @param amount absolute amount of damage
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void takeDamage(int amount) {
-        // TODO Unimplemented
+        if (amount < 0) {
+            throw new IllegalArgumentException("The damage must not be negative.");
+        }
+
+        HP = Math.max(HP - amount, 0);
     }
 
     /**
-     * Reduce the object's HP by the percentage given of the object's basic
-     * HP value ensuring however, that HP does not become negative.
-     * Do calculations in double truncating to int only for the assignment
+     * Reduces the health points by the specified, relative amount of damage as
+     * a percentage of the health points of the object. The calculation are done
+     * with the double precision type. This method ensures that the health
+     * points will never drop below zero.
      *
-     * @param percentage percentage of damage done
+     * @param percentage relative amount of damage (value between [0;100])
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void takeDamagePercent(int percentage) {
-        // TODO Unimplemented
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("The relative damage must not be less than 0 or greater than 100.");
+        }
+
+        HP = Math.max(HP - basicHP * (1 - percentage / 100), 0);
     }
 
     /**
-     * Reduce the object's MP by amount ensuring however that MP does not
-     * become negative.
+     * Reduces the mana points by the specified, absolute amount of damage. This
+     * method ensures that the mana points will never drop below zero.
      *
-     * @param amount amount to be deducted from mana
+     * @param amount absolute amount of damage
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void weakenMagic(int amount) {
-        // TODO Unimplemented
+        if (amount < 0) {
+            throw new IllegalArgumentException("The mana decrease must not be negative.");
+        }
+
+        MP = Math.max(MP - amount, 0);
     }
 
     /**
-     * Reduce the object's MP by the percentage given of the object's basic
-     * MP value ensuring however, that MP does not become negative.
-     * Do calculations in double truncating to int only for the assignment
+     * Reduces the mana points by the specified, relative amount of damage as a
+     * percentage of the mana points of the object. The calculation are done
+     * with the double precision type. This method ensures that the mana points
+     * will never drop below zero.
      *
-     * @param percentage percentage of damage done
+     * @param percentage relative amount of damage (value between [0;100])
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void weakenMagicPercent(int percentage) {
-        // TODO Unimplemented
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("The relative mana decrease must not be less than 0 or greater than 100.");
+        }
+
+        MP = Math.max(MP - basicMP * (1 - percentage / 100), 0);
     }
 
     /**
-     * Increase the object's HP by the amount given.
+     * Increases the health points by the specified, absolute amount of
+     * healing.
      *
-     * @param amount amount to increase health
+     * @param amount absolute amount of healing
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void heal(int amount) {
-        // TODO Unimplemented
+        if (amount < 0) {
+            throw new IllegalArgumentException("The healing must not be negative.");
+        }
+
+        HP += amount;
     }
 
     /**
-     * Increase the object's HP by the percentage given of the object's
-     * basic HP. Do calculations in double truncating to int only for
-     * the assignment
+     * Increases the health points by the specified, relative amount of healing
+     * as a percentage of the health points of the object. The calculation are
+     * done with the double precision type.
      *
-     * @param percentage percentage of healing done
+     * @param percentage relative amount of healing (value between [0;100])
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void healPercent(int percentage) {
-        // TODO Unimplemented
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("The relative healing must not be less than 0 or greater than 100.");
+        }
+
+        HP = Math.max(HP + basicHP * (1 - percentage / 100), 0);
     }
 
     /**
-     * Increase the object's MP by the amount given.
+     * Increases the mana points by the specified, absolute amount of healing.
      *
-     * @param amount amount to increase mana
+     * @param amount absolute amount of healing
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void enforceMagic(int amount) {
-        // TODO Unimplemented
+        if (amount < 0) {
+            throw new IllegalArgumentException("The mana increase must not be negative.");
+        }
+
+        MP += amount;
     }
 
     /**
-     * Increase the object's MP by the percentage given of the object's
-     * basic MP. Do calculations in double truncating to int only for
-     * the assignment
+     * Increases the mana points by the specified, relative amount of healing as
+     * a percentage of the mana points of the object. The calculation are done
+     * with the double precision type.
      *
-     * @param percentage percentage of mana increase
+     * @param percentage relative amount of healing (value between [0;100])
+     * @throws IllegalArgumentException if the amount does not meet criteria
      */
     @Override
     public void enforceMagicPercent(int percentage) {
-        // TODO Unimplemented
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("The relative mana increase must not be less than 0 or greater than 100.");
+        }
+
+        MP = Math.max(MP + basicMP * (1 - percentage / 100), 0);
     }
 
     /**
-     * Return true, if s is contained in instance variable protectedFrom
+     * Checks whether the object is protected against the specified spell.
      *
-     * @param spell spell that is tested for
-     * @return true, if object is protected against spell s, false otherwise
+     * @param spell specific spell to check for
+     * @return whether the object is protected against the specified spell
+     * @throws IllegalArgumentException if the specified spell is null
      */
     @Override
     public boolean isProtected(Spell spell) {
-        // TODO Unimplemented
-        return false;
+        if (spell == null) {
+            throw new IllegalArgumentException("The spell must not be null.");
+        }
+
+        return protectedFrom.contains((AttackingSpell) spell);
     }
 
     /**
-     * Add all spells from attacks to instance variable protectedFrom
+     * Registers the specified spells that the object gains protection from.
      *
-     * @param attacks spells against which protection is provided
+     * @param attacks list of spells the object gains protection from
+     * @throws IllegalArgumentException if the specified list is null
      */
     @Override
     public void setProtection(Set<AttackingSpell> attacks) {
-        // TODO Unimplemented
+        if (attacks == null) {
+            throw new IllegalArgumentException("List of attacks to add must not be empty.");
+        }
+
+        protectedFrom.addAll(attacks);
     }
 
     /**
-     * Remove all spells from attacks from instance variable protectedFrom
+     * Removes the specified spells that the object loses protection for.
      *
-     * @param attacks spells against which protection is removed
+     * @param attacks list of spells the object loses protection for
+     * @throws IllegalArgumentException if the specified list is null
      */
     @Override
     public void removeProtection(Set<AttackingSpell> attacks) {
-        // TODO Unimplemented
+        if (attacks == null) {
+            throw new IllegalArgumentException("List of attacks to remove must not be empty.");
+        }
+
+        protectedFrom.removeAll(attacks);
+    }
+
+    /**
+     * Returns the string representation of the wizard in the format:
+     * <p>
+     * "[%s(%s): %d/%d %d/%d; %d %s; knows %s; carries %s]" with the arguments:
+     * <ul>
+     *     <li>{@link Wizard#name}</li>
+     *     <li>{@link Wizard#level}</li>
+     *     <li>{@link Wizard#HP}/{@link Wizard#basicHP}</li>
+     *     <li>{@link Wizard#MP}/{@link Wizard#basicMP}</li>
+     *     <li>{@link Wizard#money} (with the currency sign)</li>
+     *     <li>{@link Wizard#knownSpells}</li>
+     *     <li>{@link Wizard#inventory}</li>
+     * </ul>
+     *
+     * @return string representation of the wizard
+     */
+    @Override
+    public String toString() {
+        String currencyString = money == 1 ? "Knut" : "Knuts";
+
+        return "[%s(%s): %d/%d %d/%d; %d %s; knows %s; carries %s]"
+                .formatted(name, level, HP, basicHP, MP, basicMP, money, currencyString, knownSpells, inventory);
     }
 }
