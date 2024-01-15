@@ -165,7 +165,11 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
      */
     @Override
     public void takeDamagePercent(int percentage) {
-        usages = (int) (usages * (percentage / 100.0));
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("Relative amount of damage must not be below 0 or above 100.");
+        }
+
+        usages = (int) (usages * (1 - percentage / 100.0));
     }
 
     /**

@@ -380,6 +380,10 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The needed level must not be null.");
         }
 
+        if (manaAmount < 0) {
+            throw new IllegalArgumentException("Mana amount must not be negative.");
+        }
+
         boolean hasLevel = level.compareTo(levelNeeded) >= 0;
         boolean hasMana = MP >= manaAmount;
 
@@ -413,9 +417,14 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      *
      * @param amount amount to test for
      * @return whether the wizard can afford the specified money amount
+     * @throws IllegalArgumentException if amount is negative
      */
     @Override
     public boolean canAfford(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Weight must not be negative.");
+        }
+
         return money >= amount;
     }
 
@@ -425,9 +434,14 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      *
      * @param weight weight to test for
      * @return whether the wizard can carry the additional weight
+     * @throws IllegalArgumentException if weight is negative
      */
     @Override
     public boolean hasCapacity(int weight) {
+        if (weight < 0) {
+            throw new IllegalArgumentException("Weight must not be negative.");
+        }
+
         return inventoryTotalWeight() + weight <= carryingCapacity;
     }
 
@@ -436,9 +450,14 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      *
      * @param amount amount to pay
      * @return whether the payment was successful
+     * @throws IllegalArgumentException if amount is negative
      */
     @Override
     public boolean pay(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Weight must not be negative.");
+        }
+
         if (!isDead() && canAfford(amount)) {
             money -= amount;
 
@@ -453,9 +472,14 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      *
      * @param amount amount to earn
      * @return whether the earning was successful
+     * @throws IllegalArgumentException if amount is negative
      */
     @Override
     public boolean earn(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount must not be negative.");
+        }
+
         if (!isDead()) {
             money += amount;
 
