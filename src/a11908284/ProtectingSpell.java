@@ -23,6 +23,9 @@ public class ProtectingSpell extends Spell {
      * @param levelNeeded the level needed to use the protecting spell
      * @param attacks     set of attacking spells that the target is protected
      *                    from
+     * @throws IllegalArgumentException if name is null or empty, manaCost is
+     *                                  negative, or levelNeeded or attacks is
+     *                                  null
      */
     public ProtectingSpell(String name, int manaCost, MagicLevel levelNeeded, Set<AttackingSpell> attacks) {
         super(name, manaCost, levelNeeded);
@@ -38,9 +41,14 @@ public class ProtectingSpell extends Spell {
      * Performs protection from the specified attacking spells
      *
      * @param target target of the spell
+     * @throws IllegalArgumentException if target is null
      */
     @Override
     public void doEffect(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("target must not be null.");
+        }
+
         target.setProtection(attacks);
     }
 

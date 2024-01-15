@@ -20,6 +20,8 @@ public class HealthPotion extends Potion {
      * @param price  price of the health potion
      * @param weight weight of the health potion
      * @param health health the potion will bring
+     * @throws IllegalArgumentException if name is null or empty, or usages,
+     *                                  price, weight or health are negative
      */
     public HealthPotion(String name, int usages, int price, int weight, int health) {
         super(name, usages, price, weight);
@@ -35,9 +37,14 @@ public class HealthPotion extends Potion {
      * Uses the potion on the specified target.
      *
      * @param target target of the item's effects
+     * @throws IllegalArgumentException if target is null
      */
     @Override
     public void useOn(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target of health potion must not be null.");
+        }
+
         if (tryUsage()) {
             heal(health);
         }

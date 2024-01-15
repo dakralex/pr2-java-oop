@@ -19,6 +19,8 @@ public class ManaPotion extends Potion {
      * @param price  price of the mana potion
      * @param weight weight of the mana potion
      * @param mana   mana the potion will bring
+     * @throws IllegalArgumentException if name is null or empty, or usages,
+     *                                  price, weight or mana is negative
      */
     public ManaPotion(String name, int usages, int price, int weight, int mana) {
         super(name, usages, price, weight);
@@ -37,6 +39,10 @@ public class ManaPotion extends Potion {
      */
     @Override
     public void useOn(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target of mana potion must not be null.");
+        }
+
         if (tryUsage()) {
             enforceMagic(mana);
         }

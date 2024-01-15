@@ -35,8 +35,17 @@ public class AttackingSpell extends Spell {
      * @param type        whether HP (true) or MP (false) are affected
      * @param percentage  whether amount is a percentage or not
      * @param amount      the amount of the attacking spell
+     * @throws IllegalArgumentException if name is null or empty, levelNeeded is
+     *                                  null or manaCost or amount are negative
      */
-    public AttackingSpell(String name, int manaCost, MagicLevel levelNeeded, boolean type, boolean percentage, int amount) {
+    public AttackingSpell(
+            String name,
+            int manaCost,
+            MagicLevel levelNeeded,
+            boolean type,
+            boolean percentage,
+            int amount
+    ) {
         super(name, manaCost, levelNeeded);
 
         if (amount < 0) {
@@ -60,9 +69,14 @@ public class AttackingSpell extends Spell {
      * the second invocation it will do its inherent effect.
      *
      * @param target target of the spell
+     * @throws IllegalArgumentException if target is null
      */
     @Override
     public void doEffect(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target of effect must not be null.");
+        }
+
         if (target.isProtected(this)) {
             target.removeProtection(Set.of(this));
             return;

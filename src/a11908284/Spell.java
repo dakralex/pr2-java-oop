@@ -26,6 +26,8 @@ public abstract class Spell {
      * @param name        name of the attacking spell
      * @param manaCost    cost of mana points to use the attacking spell
      * @param levelNeeded the level needed to use the attacking spell
+     * @throws IllegalArgumentException if name is null or empty, manaCost is
+     *                                  negative or levelNeeded is null
      */
     protected Spell(String name, int manaCost, MagicLevel levelNeeded) {
         if (name == null || name.isBlank()) {
@@ -50,8 +52,17 @@ public abstract class Spell {
      *
      * @param source caster of the spell
      * @param target target of the spell
+     * @throws IllegalArgumentException if source or target is null
      */
     public void cast(MagicSource source, MagicEffectRealization target) {
+        if (source == null) {
+            throw new IllegalArgumentException("Source of the spell must not be null.");
+        }
+
+        if (target == null) {
+            throw new IllegalArgumentException("Target of the spell must not be null.");
+        }
+
         boolean satisfyCriteria = source.provideMana(levelNeeded, manaCost);
 
         if (satisfyCriteria) {

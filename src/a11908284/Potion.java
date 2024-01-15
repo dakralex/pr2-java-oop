@@ -13,6 +13,8 @@ public abstract class Potion extends MagicItem {
      * @param usages number of usages that are remaining
      * @param price  price of the magic item
      * @param weight weight of the magic item
+     * @throws IllegalArgumentException if name is null or empty, or usages,
+     *                                  price, or weight is negative
      */
     protected Potion(String name, int usages, int price, int weight) {
         super(name, usages, price, weight);
@@ -22,8 +24,13 @@ public abstract class Potion extends MagicItem {
      * Uses the potion on the specified drinker.
      *
      * @param drinker the target of the potion's effects
+     * @throws IllegalArgumentException if drinker is null
      */
     public void drink(Wizard drinker) {
+        if (drinker == null) {
+            throw new IllegalArgumentException("Drinker of potion must not be null.");
+        }
+
         useOn(drinker);
     }
 

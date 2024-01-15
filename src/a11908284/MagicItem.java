@@ -31,6 +31,8 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
      * @param usages number of usages that are remaining
      * @param price  price of the magic item
      * @param weight weight of the magic item
+     * @throws IllegalArgumentException if name is null or empty, or usages,
+     *                                  price or weight are negative
      */
     protected MagicItem(String name, int usages, int price, int weight) {
         if (name == null || name.isBlank()) {
@@ -102,32 +104,6 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
     }
 
     /**
-     * Returns a string representation of the magic item in the format:
-     * <p>
-     * [%s; %d g; %s; %d %s%s] with the arguments:
-     * <ul>
-     *  <li>{@link MagicItem#name}</li>
-     *  <li>{@link MagicItem#weight}</li>
-     *  <li>{@link MagicItem#price}</li>
-     *  <li>{@link MagicItem#currencyString()}</li>
-     *  <li>{@link MagicItem#usages}</li>
-     *  <li>{@link MagicItem#usageString()}</li>
-     *  <li>{@link MagicItem#additionalOutputString()}</li>
-     * </ul>
-     *
-     * @return string representation of the magic item
-     */
-    @Override
-    public String toString() {
-        String currencyString = currencyString();
-        String usageString = usageString();
-        String additionalOutput = additionalOutputString();
-
-        return "[%s; %d g; %s; %d %s%s]"
-                .formatted(name, weight, currencyString, usages, usageString, additionalOutput);
-    }
-
-    /**
      * Returns the suffix depending on the price
      *
      * @return if the price is equal to 1 then "Knut", else "Knuts"
@@ -166,9 +142,19 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
      * @param levelNeeded magic level minimum to provide the mana points
      * @param amount      amount of mana points that will be provided
      * @return always returns true
+     * @throws IllegalArgumentException if levelNeeded is null or amount is
+     *                                  negative
      */
     @Override
     public boolean provideMana(MagicLevel levelNeeded, int amount) {
+        if (levelNeeded == null) {
+            throw new IllegalArgumentException("Minimum magic level must not be null.");
+        }
+
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount must not be negative.");
+        }
+
         return true;
     }
 
@@ -180,5 +166,31 @@ public abstract class MagicItem implements Tradeable, MagicEffectRealization, Ma
     @Override
     public void takeDamagePercent(int percentage) {
         usages = usages * (usages - percentage / 100);
+    }
+
+    /**
+     * Returns a string representation of the magic item in the format:
+     * <p>
+     * [%s; %d g; %s; %d %s%s] with the arguments:
+     * <ul>
+     *  <li>{@link MagicItem#name}</li>
+     *  <li>{@link MagicItem#weight}</li>
+     *  <li>{@link MagicItem#price}</li>
+     *  <li>{@link MagicItem#currencyString()}</li>
+     *  <li>{@link MagicItem#usages}</li>
+     *  <li>{@link MagicItem#usageString()}</li>
+     *  <li>{@link MagicItem#additionalOutputString()}</li>
+     * </ul>
+     *
+     * @return string representation of the magic item
+     */
+    @Override
+    public String toString() {
+        String currencyString = currencyString();
+        String usageString = usageString();
+        String additionalOutput = additionalOutputString();
+
+        return "[%s; %d g; %s; %d %s%s]"
+                .formatted(name, weight, currencyString, usages, usageString, additionalOutput);
     }
 }

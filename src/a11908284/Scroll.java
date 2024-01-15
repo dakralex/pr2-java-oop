@@ -20,6 +20,8 @@ public class Scroll extends MagicItem {
      * @param price  price of the scroll
      * @param weight weight of the scroll
      * @param spell  the spell that is written on the scroll
+     * @throws IllegalArgumentException if name is null or empty, usages, price,
+     *                                  or weight is negative or spell is null
      */
     public Scroll(String name, int usages, int price, int weight, Spell spell) {
         super(name, usages, price, weight);
@@ -36,9 +38,14 @@ public class Scroll extends MagicItem {
      * the spell using this as magic source and parameter target as target
      *
      * @param target target of the spell cast by reading the scroll
+     * @throws IllegalArgumentException if target is null
      */
     @Override
     public void useOn(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target of scroll must not be null.");
+        }
+
         if (tryUsage()) {
             spell.cast(this, target);
         }

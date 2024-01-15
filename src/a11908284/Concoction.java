@@ -39,8 +39,19 @@ public class Concoction extends Potion {
      * @param health change of health on target
      * @param mana   change of mana on target
      * @param spells list of spells that are cast when consuming the concoction
+     * @throws IllegalArgumentException if name is null or empty, usages, price
+     *                                  or weight is negative, or spells is
+     *                                  null
      */
-    public Concoction(String name, int usages, int price, int weight, int health, int mana, List<Spell> spells) {
+    public Concoction(
+            String name,
+            int usages,
+            int price,
+            int weight,
+            int health,
+            int mana,
+            List<Spell> spells
+    ) {
         super(name, usages, price, weight);
 
         if (spells == null) {
@@ -60,9 +71,14 @@ public class Concoction extends Potion {
      * Uses the potion on the specified target.
      *
      * @param target target of the item's effects
+     * @throws IllegalArgumentException if target is null
      */
     @Override
     public void useOn(MagicEffectRealization target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target of the concoction potion must not be null.");
+        }
+
         if (!tryUsage()) {
             return;
         }
