@@ -26,26 +26,26 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      * The base level of health points, which is used for health calculations.
      * This field must not be negative.
      */
-    private final int basicHP;
+    private final int healthBase;
 
     /**
      * The health points of the wizard (basicHP by default). This field must not
      * be negative.
      */
-    private int HP;
+    private int health;
 
     /**
      * The base level of mana points, which is used for magic calculations. This
      * field must not be less than the mana points required for the
      * {@link Wizard#level} and must not be negative.
      */
-    private final int basicMP;
+    private final int manaBase;
 
     /**
      * The mana points of the wizard (basicMP by default). This field must not
      * be negative.
      */
-    private int MP;
+    private int mana;
 
     /**
      * The money the wizard has. This field must not be negative.
@@ -151,10 +151,10 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
 
         this.name = name;
         this.level = level;
-        basicHP = healthBase;
-        HP = health;
-        basicMP = manaBase;
-        MP = mana;
+        this.healthBase = healthBase;
+        this.health = health;
+        this.manaBase = manaBase;
+        this.mana = mana;
         this.money = money;
         this.knownSpells = new HashSet<>(knownSpells);
         this.protectedFrom = new HashSet<>(protectedFrom);
@@ -168,7 +168,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      * @return whether the wizard is dead
      */
     public boolean isDead() {
-        return HP == 0;
+        return health == 0;
     }
 
     /**
@@ -385,10 +385,10 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
         }
 
         boolean hasLevel = level.compareTo(levelNeeded) >= 0;
-        boolean hasMana = MP >= manaAmount;
+        boolean hasMana = mana >= manaAmount;
 
         if (!isDead() && hasLevel && hasMana) {
-            MP -= manaAmount;
+            mana -= manaAmount;
 
             return true;
         }
@@ -422,7 +422,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
     @Override
     public boolean canAfford(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Weight must not be negative.");
+            throw new IllegalArgumentException("Amount to check for must not be negative.");
         }
 
         return money >= amount;
@@ -455,7 +455,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
     @Override
     public boolean pay(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Weight must not be negative.");
+            throw new IllegalArgumentException("Amount to pay must not be negative.");
         }
 
         if (!isDead() && canAfford(amount)) {
@@ -477,7 +477,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
     @Override
     public boolean earn(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Amount must not be negative.");
+            throw new IllegalArgumentException("Amount to earn must not be negative.");
         }
 
         if (!isDead()) {
@@ -615,7 +615,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The damage must not be negative.");
         }
 
-        HP = Math.max(HP - amount, 0);
+        health = Math.max(health - amount, 0);
     }
 
     /**
@@ -633,7 +633,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative damage must not be less than 0 or greater than 100.");
         }
 
-        HP = (int) Math.max(HP - basicHP * (percentage / 100.0), 0);
+        health = (int) Math.max(health - healthBase * (percentage / 100.0), 0);
     }
 
     /**
@@ -649,7 +649,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The mana decrease must not be negative.");
         }
 
-        MP = Math.max(MP - amount, 0);
+        mana = Math.max(mana - amount, 0);
     }
 
     /**
@@ -667,7 +667,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative mana decrease must not be less than 0 or greater than 100.");
         }
 
-        MP = (int) Math.max(MP - basicMP * (percentage / 100.0), 0);
+        mana = (int) Math.max(mana - manaBase * (percentage / 100.0), 0);
     }
 
     /**
@@ -683,7 +683,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The healing must not be negative.");
         }
 
-        HP += amount;
+        health += amount;
     }
 
     /**
@@ -700,7 +700,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative healing must not be less than 0 or greater than 100.");
         }
 
-        HP = (int) Math.max(HP + basicHP * (percentage / 100.0), 0);
+        health = (int) Math.max(health + healthBase * (percentage / 100.0), 0);
     }
 
     /**
@@ -715,7 +715,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The mana increase must not be negative.");
         }
 
-        MP += amount;
+        mana += amount;
     }
 
     /**
@@ -732,7 +732,7 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The relative mana increase must not be less than 0 or greater than 100.");
         }
 
-        MP = (int) Math.max(MP + basicMP * (percentage / 100.0), 0);
+        mana = (int) Math.max(mana + manaBase * (percentage / 100.0), 0);
     }
 
     /**
@@ -792,8 +792,8 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
      * <ul>
      *     <li>{@link Wizard#name}</li>
      *     <li>{@link Wizard#level}</li>
-     *     <li>{@link Wizard#HP}/{@link Wizard#basicHP}</li>
-     *     <li>{@link Wizard#MP}/{@link Wizard#basicMP}</li>
+     *     <li>{@link Wizard#health}/{@link Wizard#healthBase}</li>
+     *     <li>{@link Wizard#mana}/{@link Wizard#manaBase}</li>
      *     <li>{@link Wizard#money} (with the currency sign)</li>
      *     <li>{@link Wizard#knownSpells}</li>
      *     <li>{@link Wizard#inventory}</li>
@@ -806,6 +806,6 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
         String currencyString = money == 1 ? "Knut" : "Knuts";
 
         return "[%s(%s): %d/%d %d/%d; %d %s; knows %s; carries %s]"
-                .formatted(name, level, HP, basicHP, MP, basicMP, money, currencyString, knownSpells, inventory);
+                .formatted(name, level, health, healthBase, mana, manaBase, money, currencyString, knownSpells, inventory);
     }
 }
