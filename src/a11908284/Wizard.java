@@ -748,7 +748,11 @@ public class Wizard implements MagicSource, Trader, MagicEffectRealization {
             throw new IllegalArgumentException("The spell must not be null.");
         }
 
-        return protectedFrom.contains((AttackingSpell) spell);
+        if (spell instanceof AttackingSpell) {
+            return protectedFrom.contains(spell);
+        }
+
+        return false;
     }
 
     /**
